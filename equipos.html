@@ -1,0 +1,1739 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GeoAventura | El Desafío de las Dimensiones</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka e Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8;
+            background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        h1, h2, h3, .font-display {
+            font-family: 'Fredoka', sans-serif;
+        }
+        .card-shadow {
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+        }
+        .btn-3d {
+            transition: all 0.15s ease;
+            border-bottom-width: 4px;
+        }
+        .btn-3d:active {
+            transform: translateY(2px);
+            border-bottom-width: 2px;
+        }
+        .chalkboard {
+            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+            border: 6px solid #92400e;
+            box-shadow: inset 0 0 24px rgba(0,0,0,0.65), 0 12px 24px rgba(0,0,0,0.18);
+        }
+        @keyframes slideInToast {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .toast-enter {
+            animation: slideInToast 0.3s ease-out forwards;
+        }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; }
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen flex flex-col">
+
+    <!-- ===================================================================== -->
+    <!-- PÁGINA 1: VISTA EXCLUSIVA DE EQUIPOS (PÁGINA PRINCIPAL POR DEFECTO)   -->
+    <!-- Sin enlaces ni botones hacia el panel docente ni rankings globales.   -->
+    <!-- ===================================================================== -->
+    <div id="student-page" class="hidden flex-1 flex flex-col">
+        
+        <!-- Barra Superior Exclusiva del Equipo -->
+        <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+            <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                        <i class="fa-solid fa-shapes text-lg"></i>
+                    </div>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <span id="stu-header-team-name" class="font-display font-bold text-base sm:text-lg text-slate-800 truncate">GeoAventura</span>
+                            <span id="stu-header-level-badge" class="hidden sm:inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700 shrink-0">
+                                Nivel 1: Exploración
+                            </span>
+                        </div>
+                        <p id="stu-header-subtitle" class="text-[11px] text-slate-500 truncate">
+                            El Desafío de las Dimensiones
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Marcador propio del equipo y herramientas de apoyo -->
+                <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+                    <div id="stu-points-pill" class="hidden bg-amber-100 border border-amber-300 text-amber-900 px-3 py-1 rounded-xl flex items-center gap-1.5 shadow-sm">
+                        <i class="fa-solid fa-star text-amber-500"></i>
+                        <span id="stu-header-points" class="font-display font-bold text-base">0</span>
+                        <span class="text-xs font-semibold hidden sm:inline">pts</span>
+                    </div>
+
+                    <button onclick="toggleFormulaModal(true)" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-semibold px-3 py-2 rounded-xl text-xs transition flex items-center gap-1.5" title="Fórmulas geométricas">
+                        <i class="fa-solid fa-square-root-variable"></i> <span class="hidden sm:inline">Fórmulas</span>
+                    </button>
+
+                    <button onclick="showSyncCodeModal()" id="btn-stu-sync-code" class="hidden bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold px-3 py-2 rounded-xl text-xs transition flex items-center gap-1.5" title="Mostrar código de avance a la maestra">
+                        <i class="fa-solid fa-qrcode"></i> <span class="hidden md:inline">Código</span>
+                    </button>
+
+                    <button onclick="logoutStudentTeam()" id="btn-stu-logout" class="hidden text-slate-400 hover:text-rose-600 p-2 rounded-lg text-xs font-semibold transition" title="Cambiar nombre de equipo">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Contenedor Principal de Equipos -->
+        <main class="flex-1 max-w-5xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-8 flex flex-col justify-center">
+
+            <!-- PANTALLA DE ACCESO ULTRA SENCILLA: SOLO NOMBRE DEL EQUIPO -->
+            <div id="student-login-screen" class="max-w-md w-full mx-auto bg-white rounded-3xl p-7 sm:p-9 card-shadow border border-slate-100 space-y-6">
+                <div class="text-center space-y-2.5">
+                    <div class="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-3xl mx-auto shadow-inner">
+                        <i class="fa-solid fa-users"></i>
+                    </div>
+                    <span class="inline-block px-3 py-1 rounded-full bg-indigo-50 text-indigo-700 text-xs font-bold uppercase tracking-wider">
+                        Misión Geométrica
+                    </span>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-slate-800">¡Bienvenidos, Equipo!</h1>
+                    <p class="text-sm text-slate-500">
+                        Escriban el <strong>nombre de su equipo</strong> para comenzar con los retos de figuras y cuerpos geométricos.
+                    </p>
+                </div>
+
+                <form onsubmit="handleSimpleTeamLogin(event)" class="space-y-4">
+                    <div>
+                        <label for="simple-team-name-input" class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1.5">
+                            Nombre del Equipo *
+                        </label>
+                        <input type="text" id="simple-team-name-input" required maxlength="35" autocomplete="off"
+                            placeholder="Ej. Los Pitagóricos"
+                            class="w-full bg-slate-50 border-2 border-slate-200 focus:border-emerald-500 focus:bg-white rounded-2xl px-4 py-3.5 text-base font-bold text-slate-800 outline-none transition">
+                        <p id="login-name-error" class="hidden text-xs text-rose-600 font-semibold mt-1.5">
+                            Por favor escriban un nombre para su equipo antes de entrar.
+                        </p>
+                    </div>
+
+                    <!-- Opción desplegable discreta para integrantes (opcional) -->
+                    <div>
+                        <button type="button" onclick="document.getElementById('optional-members-box').classList.toggle('hidden')"
+                            class="text-xs font-semibold text-slate-400 hover:text-indigo-600 flex items-center gap-1 transition">
+                            <i class="fa-solid fa-user-plus"></i> Agregar nombres de integrantes (opcional)
+                        </button>
+                        <div id="optional-members-box" class="hidden mt-2">
+                            <input type="text" id="simple-team-members-input" placeholder="Ej. Ana, Carlos, Sofía, Mateo"
+                                class="w-full bg-slate-50 border border-slate-200 focus:border-emerald-500 rounded-xl px-3.5 py-2.5 text-xs text-slate-700 outline-none">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full btn-3d bg-emerald-600 hover:bg-emerald-500 border-emerald-800 text-white font-bold py-4 px-6 rounded-2xl text-base shadow-lg flex items-center justify-center gap-2">
+                        <span>Entrar al Reto</span> <i class="fa-solid fa-rocket"></i>
+                    </button>
+                </form>
+
+                <!-- Indicador discreto de conexión en vivo -->
+                <div class="pt-3 border-t border-slate-100 flex items-center justify-center gap-2 text-[11px] text-slate-400">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span id="stu-sync-status-label">Sincronización en vivo lista</span>
+                </div>
+            </div>
+
+            <!-- PANTALLA DE JUEGO DEL EQUIPO (3 NIVELES + AUTOEVALUACIÓN) -->
+            <div id="student-mission-screen" class="hidden space-y-6 w-full">
+                
+                <!-- Selector de los 3 Niveles -->
+                <div class="grid grid-cols-3 gap-2.5 sm:gap-4">
+                    <button onclick="studentSelectLevel(1)" id="stu-lvl-1" class="p-3 sm:p-4 rounded-2xl border-2 text-left bg-white border-indigo-600 shadow-sm transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold uppercase px-2 py-0.5 rounded bg-indigo-100 text-indigo-700">Nivel 1</span>
+                            <span id="stu-lvl-1-count" class="text-xs font-bold text-slate-500">0/4</span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-sm sm:text-base mt-1">Exploración</h3>
+                    </button>
+
+                    <button onclick="studentSelectLevel(2)" id="stu-lvl-2" class="p-3 sm:p-4 rounded-2xl border-2 text-left bg-white border-slate-200 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold uppercase px-2 py-0.5 rounded bg-purple-100 text-purple-700">Nivel 2</span>
+                            <span id="stu-lvl-2-count" class="text-xs font-bold text-slate-500">0/4</span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-sm sm:text-base mt-1">Retos Matemáticos</h3>
+                    </button>
+
+                    <button onclick="studentSelectLevel(3)" id="stu-lvl-3" class="p-3 sm:p-4 rounded-2xl border-2 text-left bg-white border-slate-200 transition">
+                        <div class="flex items-center justify-between">
+                            <span class="text-[11px] font-bold uppercase px-2 py-0.5 rounded bg-amber-100 text-amber-700">Nivel 3</span>
+                            <span id="stu-lvl-3-count" class="text-xs font-bold text-slate-500">0/4</span>
+                        </div>
+                        <h3 class="font-bold text-slate-800 text-sm sm:text-base mt-1">Desafío Final</h3>
+                    </button>
+                </div>
+
+                <!-- Tarjeta del Reto Activo -->
+                <div id="student-challenge-card" class="bg-white rounded-3xl card-shadow border border-slate-100 overflow-hidden">
+                    <div id="stu-challenge-header" class="bg-indigo-600 px-6 py-4 text-white flex flex-wrap items-center justify-between gap-2">
+                        <div class="flex items-center gap-2">
+                            <span id="stu-challenge-badge" class="bg-white/20 px-3 py-1 rounded-full text-xs font-bold">Nivel 1 • Reto 1 de 4</span>
+                            <span class="text-xs bg-amber-400 text-slate-900 font-bold px-2.5 py-0.5 rounded-full">
+                                <i class="fa-solid fa-star mr-1"></i> +1 Punto
+                            </span>
+                        </div>
+                        <button onclick="switchStudentToSelfEval()" class="text-xs bg-white/15 hover:bg-white/25 text-white font-semibold px-3 py-1.5 rounded-lg transition">
+                            <i class="fa-solid fa-clipboard-check mr-1"></i> Autoevaluación Final
+                        </button>
+                    </div>
+
+                    <div class="p-6 sm:p-8">
+                        <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                            <!-- Gráfico SVG -->
+                            <div class="md:col-span-5 bg-slate-50 rounded-2xl p-4 border border-slate-200/80 flex flex-col items-center justify-center min-h-[220px]">
+                                <div id="stu-svg-container" class="w-full max-w-[210px] h-[180px] flex items-center justify-center"></div>
+                                <span id="stu-figure-label" class="mt-2 text-xs font-semibold text-slate-600 bg-white px-3 py-1 rounded-full border border-slate-200">
+                                    Figura
+                                </span>
+                            </div>
+
+                            <!-- Pregunta e Interacción -->
+                            <div class="md:col-span-7 space-y-4">
+                                <div>
+                                    <h3 id="stu-challenge-title" class="text-xl font-bold text-slate-800 mb-2">Título</h3>
+                                    <p id="stu-challenge-question" class="text-slate-600 text-sm sm:text-base leading-relaxed">Enunciado</p>
+                                </div>
+
+                                <!-- Pista -->
+                                <div id="stu-hint-box" class="hidden bg-amber-50 border-l-4 border-amber-400 p-3.5 rounded-r-xl text-xs sm:text-sm text-amber-900">
+                                    <strong><i class="fa-solid fa-lightbulb text-amber-500 mr-1"></i> Pista:</strong>
+                                    <span id="stu-hint-text"></span>
+                                </div>
+
+                                <!-- Zona de respuesta -->
+                                <div id="stu-interaction-area" class="pt-2"></div>
+
+                                <!-- Navegación -->
+                                <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-100">
+                                    <button onclick="document.getElementById('stu-hint-box').classList.remove('hidden')" class="text-xs font-semibold text-amber-600 hover:text-amber-700 flex items-center gap-1.5 px-3 py-2 rounded-lg hover:bg-amber-50 transition">
+                                        <i class="fa-regular fa-lightbulb"></i> Pedir una pista
+                                    </button>
+                                    <div class="flex items-center gap-2">
+                                        <button onclick="stuPrevChallenge()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold">
+                                            <i class="fa-solid fa-chevron-left"></i> Anterior
+                                        </button>
+                                        <button onclick="stuNextChallenge()" class="px-3.5 py-2 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs font-semibold">
+                                            Siguiente <i class="fa-solid fa-chevron-right"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Banner de Retroalimentación -->
+                        <div id="stu-feedback-banner" class="hidden mt-6 p-4 rounded-2xl border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                            <div class="flex items-start gap-3">
+                                <div id="stu-feedback-icon" class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 mt-0.5"></div>
+                                <div>
+                                    <h4 id="stu-feedback-title" class="font-bold text-sm sm:text-base"></h4>
+                                    <p id="stu-feedback-explanation" class="text-xs sm:text-sm mt-0.5"></p>
+                                </div>
+                            </div>
+                            <button onclick="stuNextChallenge()" id="stu-btn-next-success" class="hidden shrink-0 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow">
+                                Siguiente Reto <i class="fa-solid fa-arrow-right ml-1"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta de Autoevaluación Final del Equipo -->
+                <div id="student-self-eval-card" class="hidden bg-white rounded-3xl p-6 sm:p-8 card-shadow border border-slate-100 space-y-5">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                        <div>
+                            <span class="text-xs font-bold uppercase text-amber-600">Cierre de Misión</span>
+                            <h3 class="text-xl sm:text-2xl font-bold text-slate-800">Autoevaluación Final del Equipo</h3>
+                        </div>
+                        <button onclick="hideStudentSelfEval()" class="text-xs font-semibold text-indigo-600 hover:underline">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> Volver a los Retos
+                        </button>
+                    </div>
+
+                    <p class="text-sm text-slate-600">
+                        Dialoguen entre los integrantes de su equipo y respondan cómo fue su trabajo colaborativo:
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">1. ¿Cómo trabajamos en equipo?</label>
+                            <select id="stu-eval-coop" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm">
+                                <option value="Excelente">🌟 Excelente: Todos participamos y nos apoyamos</option>
+                                <option value="Buena">👍 Buena: Casi todos participamos activamente</option>
+                                <option value="Por mejorar">🔧 Por mejorar: Nos faltó organizarnos mejor</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-700 mb-1.5">2. ¿Qué nivel nos retó más?</label>
+                            <select id="stu-eval-diff" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2.5 text-sm">
+                                <option value="Nivel 1: Exploración">Nivel 1: Identificar caras, vértices y aristas</option>
+                                <option value="Nivel 2: Retos Matemáticos">Nivel 2: Aplicar fórmulas de área y volumen</option>
+                                <option value="Nivel 3: Desafío Final">Nivel 3: Resolver problemas de la vida cotidiana</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1.5">3. Reflexión del equipo: ¿Qué aprendimos hoy?</label>
+                        <textarea id="stu-eval-reflection" rows="3" placeholder="Escriban aquí su conclusión como equipo..." class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm outline-none focus:border-emerald-500"></textarea>
+                    </div>
+
+                    <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+                        <span id="stu-eval-sent-badge" class="hidden text-xs font-bold text-emerald-600 bg-emerald-50 px-3 py-1.5 rounded-lg">
+                            <i class="fa-solid fa-circle-check mr-1"></i> ¡Autoevaluación enviada!
+                        </span>
+                        <button onclick="submitStudentSelfEval()" class="ml-auto bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md flex items-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Enviar Autoevaluación
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- PÁGINA 2: PÁGINA INDEPENDIENTE DEL DOCENTE Y RANKINGS (?docente=1)    -->
+    <!-- ===================================================================== -->
+    <div id="teacher-page" class="hidden flex-1 flex flex-col">
+        
+        <!-- Toast de Notificación en Vivo cuando un equipo suma puntos -->
+        <div id="live-score-toast" class="fixed top-20 right-5 z-50 hidden bg-slate-900 text-white border-2 border-amber-400 rounded-2xl px-5 py-3.5 shadow-2xl flex items-center gap-3 toast-enter">
+            <div class="w-9 h-9 rounded-xl bg-amber-400 text-slate-900 flex items-center justify-center font-bold text-lg shrink-0">
+                <i class="fa-solid fa-star"></i>
+            </div>
+            <div>
+                <p class="text-[11px] uppercase tracking-wider text-amber-300 font-bold">¡Punto Registrado en Vivo!</p>
+                <p id="live-toast-text" class="text-sm font-bold text-white">Equipo sumó +1 punto</p>
+            </div>
+        </div>
+
+        <!-- Barra Superior Docente -->
+        <header id="teacher-header" class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md no-print">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 text-slate-900 flex items-center justify-center font-bold shadow">
+                        <i class="fa-solid fa-chalkboard-user text-lg"></i>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <h1 class="text-base sm:text-xl font-bold text-white leading-tight">GeoAventura • Pizarrón Docente</h1>
+                            <span id="teacher-live-pill" class="hidden md:inline-flex items-center gap-1.5 text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Rankings en Vivo
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-slate-400 hidden sm:block">Panel Exclusivo de Seguimiento, Rankings y Evaluación</p>
+                    </div>
+                </div>
+
+                <!-- Pestañas del Docente -->
+                <nav class="flex items-center gap-1 sm:gap-1.5 bg-slate-800 p-1 rounded-xl overflow-x-auto">
+                    <button onclick="switchTeacherTab('rankings')" id="t-tab-rankings" class="t-nav-btn px-3 py-1.5 rounded-lg text-xs font-bold transition bg-indigo-600 text-white flex items-center gap-1.5 shrink-0">
+                        <i class="fa-solid fa-trophy text-amber-300"></i> <span>Rankings</span>
+                    </button>
+                    <button onclick="switchTeacherTab('sync')" id="t-tab-sync" class="t-nav-btn px-3 py-1.5 rounded-lg text-xs font-bold transition text-slate-300 hover:text-white flex items-center gap-1.5 shrink-0">
+                        <i class="fa-solid fa-cloud-arrow-up"></i> <span class="hidden sm:inline">Enlace y Archivos</span>
+                    </button>
+                    <button onclick="switchTeacherTab('eval')" id="t-tab-eval" class="t-nav-btn px-3 py-1.5 rounded-lg text-xs font-bold transition text-slate-300 hover:text-white flex items-center gap-1.5 shrink-0">
+                        <i class="fa-solid fa-clipboard-check"></i> <span class="hidden sm:inline">Evaluación</span>
+                    </button>
+                    <button onclick="switchTeacherTab('plan')" id="t-tab-plan" class="t-nav-btn px-3 py-1.5 rounded-lg text-xs font-bold transition text-slate-300 hover:text-white flex items-center gap-1.5 shrink-0">
+                        <i class="fa-solid fa-book-open"></i> <span class="hidden md:inline">Plan</span>
+                    </button>
+                </nav>
+
+                <!-- Botón Modo Proyección Gigante -->
+                <div class="flex items-center gap-2">
+                    <button onclick="toggleProjectionMode()" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-3.5 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow" title="Pantalla gigante para proyectar en el aula">
+                        <i class="fa-solid fa-expand"></i> <span class="hidden sm:inline">Proyectar</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Barra flotante en Modo Proyección Gigante -->
+        <div id="projection-exit-bar" class="hidden bg-slate-900 text-white px-6 py-3 flex items-center justify-between border-b border-slate-700">
+            <div class="flex items-center gap-3">
+                <i class="fa-solid fa-trophy text-amber-400 text-xl"></i>
+                <span class="font-display font-bold text-lg">RANKINGS EN VIVO • GEOAVENTURA</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="announceWinner()" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-4 py-1.5 rounded-xl text-xs shadow">
+                    <i class="fa-solid fa-crown mr-1"></i> Premiación
+                </button>
+                <button onclick="toggleProjectionMode()" class="bg-slate-700 hover:bg-slate-600 text-white font-semibold px-4 py-1.5 rounded-xl text-xs">
+                    <i class="fa-solid fa-compress mr-1"></i> Salir de Proyección
+                </button>
+            </div>
+        </div>
+
+        <!-- CONTENIDO DEL PANEL DOCENTE -->
+        <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+            <!-- ============================================================ -->
+            <!-- PESTAÑA 1: PIZARRÓN DE RANKINGS EN TIEMPO REAL               -->
+            <!-- ============================================================ -->
+            <section id="teacher-view-rankings" class="space-y-6">
+                
+                <!-- Barra Superior de Acciones Rápidas -->
+                <div id="teacher-ranking-controls" class="bg-white rounded-2xl p-4 card-shadow border border-slate-200 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                            <i class="fa-solid fa-satellite-dish"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-sm">Tablero de Posiciones Automático</h3>
+                            <p class="text-xs text-slate-500">Cada equipo que entre y resuelva retos aparecerá aquí automáticamente ordenado por puntaje.</p>
+                        </div>
+                    </div>
+
+                    <!-- Entrada de Código Offline + Botones de Control -->
+                    <div class="flex flex-wrap items-center gap-2">
+                        <form onsubmit="applySyncCode(event)" class="flex items-center gap-1.5">
+                            <input type="text" id="teacher-sync-code-input" placeholder="Código Ej: Pitagóricos|6|2"
+                                class="w-44 bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:border-indigo-500 outline-none">
+                            <button type="submit" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-3 py-2 rounded-xl text-xs transition">
+                                Registrar
+                            </button>
+                        </form>
+                        <button onclick="openStudentPageTab()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-3.5 py-2 rounded-xl text-xs shadow-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir Pág. Equipos
+                        </button>
+                        <button onclick="announceWinner()" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-bold px-3.5 py-2 rounded-xl text-xs shadow-sm flex items-center gap-1.5">
+                            <i class="fa-solid fa-crown"></i> Premiación
+                        </button>
+                    </div>
+                </div>
+
+                <!-- EL PIZARRÓN GIGANTE DE RANKINGS -->
+                <div class="chalkboard rounded-3xl p-6 sm:p-8 text-white">
+                    <div class="flex flex-wrap items-center justify-between gap-4 pb-5 mb-6 border-b border-slate-700">
+                        <div>
+                            <span class="text-xs font-bold uppercase tracking-widest text-amber-400">Tabla Oficial de Posiciones</span>
+                            <h2 class="font-display text-2xl sm:text-3xl font-bold text-white mt-0.5">
+                                Ranking de Equipos en Tiempo Real
+                            </h2>
+                        </div>
+                        <div class="flex items-center gap-3 text-xs text-slate-300 bg-slate-800/80 px-4 py-2 rounded-xl border border-slate-700">
+                            <span><i class="fa-solid fa-users text-emerald-400 mr-1"></i> <strong id="total-teams-badge">0</strong> Equipos activos</span>
+                            <span>•</span>
+                            <span><i class="fa-solid fa-star text-amber-400 mr-1"></i> 12 Retos totales</span>
+                            <button onclick="resetAllScores()" class="ml-2 text-rose-400 hover:text-rose-300 underline font-semibold" title="Limpiar tablero">
+                                Limpiar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Posiciones -->
+                    <div id="teacher-scoreboard-list" class="space-y-4">
+                        <!-- Renderizado dinámico -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PESTAÑA 2: ENLACE DE EQUIPOS, NUBE Y ARCHIVOS SEPARADOS      -->
+            <!-- ============================================================ -->
+            <section id="teacher-view-sync" class="hidden space-y-6">
+                
+                <!-- 1. Enlace directo para los alumnos -->
+                <div class="bg-white rounded-2xl p-6 card-shadow border border-slate-200 space-y-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-11 h-11 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl shrink-0">
+                            <i class="fa-solid fa-link"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800">1. Página Exclusiva para los Equipos</h3>
+                            <p class="text-xs sm:text-sm text-slate-500">
+                                Comparte este enlace con tus alumnos. Al abrirlo, solo verán el formulario para escribir el <strong>Nombre de su Equipo</strong> y sus retos matemáticos.
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 bg-slate-50 p-3 rounded-xl border border-slate-200">
+                        <input type="text" id="student-share-url" readonly class="flex-1 bg-transparent text-xs font-mono text-slate-700 outline-none px-2">
+                        <button onclick="copyStudentUrl()" id="btn-copy-stu-url" class="bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm flex items-center justify-center gap-1.5 shrink-0">
+                            <i class="fa-solid fa-copy"></i> Copiar Enlace Equipos
+                        </button>
+                        <button onclick="openStudentPageTab()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2 rounded-lg text-xs shadow-sm flex items-center justify-center gap-1.5 shrink-0">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i> Abrir en Pestaña
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2. Descargar como Dos Archivos HTML Independientes -->
+                <div class="bg-white rounded-2xl p-6 card-shadow border border-slate-200 space-y-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-11 h-11 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-xl shrink-0">
+                            <i class="fa-solid fa-file-code"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800">2. Descargar como Dos Archivos HTML Separados</h3>
+                            <p class="text-xs sm:text-sm text-slate-500">
+                                Si deseas guardar o subir dos archivos totalmente separados a tu plataforma escolar (Google Classroom, Drive o servidor), descárgalos aquí con un clic:
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <button onclick="downloadStandaloneHTML('equipos')" class="p-4 rounded-2xl border-2 border-emerald-200 hover:border-emerald-500 bg-emerald-50/40 text-left transition flex items-center justify-between group">
+                            <div>
+                                <span class="text-xs font-bold uppercase text-emerald-700">Archivo para Alumnos</span>
+                                <h4 class="font-bold text-slate-800 text-base">equipos.html</h4>
+                                <p class="text-xs text-slate-500 mt-0.5">Abre directo en el acceso de equipos.</p>
+                            </div>
+                            <i class="fa-solid fa-download text-emerald-600 text-xl group-hover:scale-110 transition"></i>
+                        </button>
+
+                        <button onclick="downloadStandaloneHTML('docente')" class="p-4 rounded-2xl border-2 border-indigo-200 hover:border-indigo-500 bg-indigo-50/40 text-left transition flex items-center justify-between group">
+                            <div>
+                                <span class="text-xs font-bold uppercase text-indigo-700">Archivo para la Maestra</span>
+                                <h4 class="font-bold text-slate-800 text-base">docente_rankings.html</h4>
+                                <p class="text-xs text-slate-500 mt-0.5">Abre directo en tu pizarrón de rankings.</p>
+                            </div>
+                            <i class="fa-solid fa-download text-indigo-600 text-xl group-hover:scale-110 transition"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 3. Sincronización Multi-Dispositivo en la Nube (Opcional Firebase) -->
+                <div class="bg-white rounded-2xl p-6 card-shadow border border-slate-200 space-y-4">
+                    <div class="flex items-start gap-3">
+                        <div class="w-11 h-11 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl shrink-0">
+                            <i class="fa-solid fa-wifi"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-800">3. Sincronización Multi-Dispositivo en Vivo (Opcional)</h3>
+                            <p class="text-xs sm:text-sm text-slate-500">
+                                Por defecto, los puntajes se sincronizan al instante entre pestañas/ventanas del mismo equipo. Si los alumnos usan sus propios celulares o tablets por internet, pega aquí la URL de tu <strong>Firebase Realtime Database</strong> (en modo prueba) y genera el enlace con sala compartida:
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+                        <input type="url" id="firebase-url-input" placeholder="https://tu-proyecto-default-rtdb.firebaseio.com"
+                            class="md:col-span-7 bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-mono outline-none focus:border-indigo-500">
+                        <input type="text" id="firebase-room-input" placeholder="Código Sala (Ej. 2A)"
+                            class="md:col-span-2 bg-slate-50 border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs font-bold uppercase outline-none focus:border-indigo-500">
+                        <button onclick="saveCloudConfig()" class="md:col-span-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-4 py-2.5 rounded-xl text-xs shadow-sm">
+                            Activar Nube en Vivo
+                        </button>
+                    </div>
+                    <p id="cloud-status-msg" class="text-xs text-slate-500"></p>
+                </div>
+
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PESTAÑA 3: EVALUACIÓN FORMATIVA                              -->
+            <!-- ============================================================ -->
+            <section id="teacher-view-eval" class="hidden space-y-6">
+                <div class="bg-white rounded-2xl p-6 card-shadow border border-slate-200">
+                    <div class="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-slate-100">
+                        <div>
+                            <span class="text-xs font-bold uppercase text-indigo-600">Instrumentos de Evaluación Formativa</span>
+                            <h2 class="text-xl font-bold text-slate-800">Lista de Cotejo, Observación Directa y Autoevaluación</h2>
+                        </div>
+                        <div class="flex items-center gap-2 no-print">
+                            <select id="eval-team-select" onchange="renderEvaluationForm()" class="bg-slate-50 border border-slate-300 text-slate-800 text-sm rounded-xl px-3 py-2 font-bold outline-none"></select>
+                            <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-white font-semibold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5">
+                                <i class="fa-solid fa-print"></i> Imprimir
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="evaluation-content" class="mt-6 space-y-6">
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs">1</span>
+                                Lista de Cotejo (Desempeño Matemático del Equipo)
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="checklist-container"></div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs">2</span>
+                                Observación Directa (Trabajo Armónico y Reparto Equitativo)
+                            </h3>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="observation-container"></div>
+                        </div>
+
+                        <div class="bg-amber-50/70 rounded-2xl p-5 border border-amber-200/80">
+                            <h3 class="text-sm font-bold text-amber-900 mb-2 flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-lg bg-amber-200 text-amber-800 flex items-center justify-center text-xs">3</span>
+                                Autoevaluación Final Enviada por el Equipo
+                            </h3>
+                            <div id="teacher-view-self-eval" class="text-sm text-slate-700 space-y-2"></div>
+                        </div>
+
+                        <div class="flex justify-end pt-2 no-print">
+                            <button onclick="generateCertificate()" class="bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow flex items-center gap-2">
+                                <i class="fa-solid fa-award"></i> Emitir Diploma para este Equipo
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============================================================ -->
+            <!-- PESTAÑA 4: PLAN DIDÁCTICO                                    -->
+            <!-- ============================================================ -->
+            <section id="teacher-view-plan" class="hidden bg-white rounded-2xl p-6 card-shadow border border-slate-200 space-y-5 text-sm">
+                <div class="border-b border-slate-100 pb-3">
+                    <span class="text-xs font-bold uppercase text-indigo-600">Diseño Instruccional</span>
+                    <h2 class="text-xl font-bold text-slate-800">Estructura de la Gamificación</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                        <h4 class="font-bold text-indigo-900 mb-1">Tema Matemático</h4>
+                        <p class="text-indigo-800">Figuras y cuerpos geométricos: calcular su área, perímetro y volumen según corresponda.</p>
+                    </div>
+                    <div class="bg-sky-50 p-4 rounded-xl border border-sky-100">
+                        <h4 class="font-bold text-sky-900 mb-1">Diagnóstico del Grupo</h4>
+                        <p class="text-sky-800">Conocimientos previos sobre figuras y cuerpos geométricos vistos en primaria.</p>
+                    </div>
+                </div>
+                <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-100">
+                    <h4 class="font-bold text-emerald-900 mb-2">Objetivos de Aprendizaje</h4>
+                    <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-emerald-900 font-medium">
+                        <li><i class="fa-solid fa-check text-emerald-600 mr-1.5"></i> Identificar y clasificar.</li>
+                        <li><i class="fa-solid fa-check text-emerald-600 mr-1.5"></i> Reconocer características.</li>
+                        <li><i class="fa-solid fa-check text-emerald-600 mr-1.5"></i> Aplicar fórmulas de área, perímetro y volumen.</li>
+                        <li><i class="fa-solid fa-check text-emerald-600 mr-1.5"></i> Trabajar en equipo (4-5 integrantes).</li>
+                    </ul>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="bg-amber-50 p-4 rounded-xl border border-amber-100">
+                        <h4 class="font-bold text-amber-900 mb-2">Mecánicas de Juego</h4>
+                        <ul class="space-y-1.5 text-amber-900">
+                            <li><strong>• Puntos:</strong> Sumar 1 punto cada que logre completar el reto.</li>
+                            <li><strong>• Niveles:</strong> Avanzar de nivel subiendo la complejidad.</li>
+                            <li><strong>• Rankings:</strong> Registro en el pizarrón donde se anotan los puntos de cada equipo.</li>
+                        </ul>
+                    </div>
+                    <div class="bg-purple-50 p-4 rounded-xl border border-purple-100">
+                        <h4 class="font-bold text-purple-900 mb-2">Plan de Implementación</h4>
+                        <ul class="space-y-1.5 text-purple-900">
+                            <li><strong>• Nivel 1 (Exploración):</strong> Lados, caras, vértices, aristas y fórmulas.</li>
+                            <li><strong>• Nivel 2 (Retos Matemáticos):</strong> Cálculo de perímetro, área y volumen.</li>
+                            <li><strong>• Nivel 3 (Desafío Final):</strong> Problemas de la vida cotidiana.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODALES COMPARTIDOS (FORMULARIO, CÓDIGO OFFLINE Y DIPLOMA)            -->
+    <!-- ===================================================================== -->
+
+    <!-- MODAL: FORMULARIO GEOMÉTRICO -->
+    <div id="formula-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="bg-indigo-600 text-white px-6 py-4 flex items-center justify-between">
+                <h3 class="font-bold text-lg"><i class="fa-solid fa-square-root-variable mr-2"></i> Formulario Geométrico de Apoyo</h3>
+                <button onclick="toggleFormulaModal(false)" class="text-white/80 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6 overflow-y-auto grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <h4 class="font-bold text-indigo-700 mb-1">Triángulo</h4>
+                    <p class="text-slate-600">Perímetro: <code>P = L₁ + L₂ + L₃</code></p>
+                    <p class="text-slate-600">Área: <code>A = (b × h) / 2</code></p>
+                </div>
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <h4 class="font-bold text-indigo-700 mb-1">Círculo (usar π ≈ 3.14)</h4>
+                    <p class="text-slate-600">Perímetro: <code>P = 2 × π × r</code></p>
+                    <p class="text-slate-600">Área: <code>A = π × r²</code></p>
+                </div>
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <h4 class="font-bold text-indigo-700 mb-1">Trapecio</h4>
+                    <p class="text-slate-600">Área: <code>A = ((B + b) × h) / 2</code></p>
+                </div>
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <h4 class="font-bold text-purple-700 mb-1">Prisma Rectangular</h4>
+                    <p class="text-slate-600">Volumen: <code>V = largo × ancho × alto</code></p>
+                </div>
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <h4 class="font-bold text-purple-700 mb-1">Cilindro (usar π ≈ 3.14)</h4>
+                    <p class="text-slate-600">Volumen: <code>V = π × r² × h</code></p>
+                    <p class="text-slate-600">Área Lateral: <code>A_lat = 2 × π × r × h</code></p>
+                </div>
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <h4 class="font-bold text-purple-700 mb-1">Pirámide Cuadrangular</h4>
+                    <p class="text-slate-600">Volumen: <code>V = (Área_base × h) / 3</code></p>
+                </div>
+            </div>
+            <div class="bg-slate-50 px-6 py-3 border-t border-slate-200 flex justify-end">
+                <button onclick="toggleFormulaModal(false)" class="bg-slate-800 text-white font-semibold px-4 py-2 rounded-xl text-sm">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: CÓDIGO DE AVANCE OFFLINE -->
+    <div id="sync-code-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 text-center space-y-4 shadow-2xl">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-2xl mx-auto">
+                <i class="fa-solid fa-qrcode"></i>
+            </div>
+            <h3 class="font-bold text-xl text-slate-800">Código de Avance del Equipo</h3>
+            <p class="text-xs text-slate-500">
+                Si trabajan desde un dispositivo sin conexión compartida, muestren o dicten este código a la maestra:
+            </p>
+            <div id="generated-sync-code" class="bg-slate-900 text-amber-300 font-mono font-bold text-lg py-3.5 px-4 rounded-xl select-all">
+                Equipo|0|1
+            </div>
+            <button onclick="document.getElementById('sync-code-modal').classList.add('hidden')" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2.5 rounded-xl text-sm">
+                Listo
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL: DIPLOMA -->
+    <div id="certificate-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-2 shadow-2xl">
+            <div class="border-4 border-double border-amber-400 rounded-2xl p-6 sm:p-8 text-center bg-gradient-to-b from-amber-50/70 to-white relative">
+                <button onclick="document.getElementById('certificate-modal').classList.add('hidden')" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700 text-xl no-print">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="w-16 h-16 mx-auto bg-amber-100 text-amber-500 rounded-full flex items-center justify-center text-3xl mb-3 shadow-inner">
+                    <i class="fa-solid fa-trophy"></i>
+                </div>
+                <span class="text-xs font-bold uppercase tracking-widest text-amber-600">Reconocimiento GeoAventura</span>
+                <h2 id="cert-heading" class="font-display text-2xl sm:text-3xl font-bold text-slate-800 mt-1">¡Maestros de la Geometría!</h2>
+                <p class="text-slate-500 text-sm mt-3">Se otorga el presente diploma al equipo:</p>
+                <div id="cert-team-name" class="text-2xl sm:text-3xl font-extrabold text-indigo-700 my-2">Equipo</div>
+                <div id="cert-members" class="flex flex-wrap justify-center gap-1.5 my-3"></div>
+                <p class="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto mt-3 leading-relaxed">
+                    Por su destacada participación en la resolución de retos de área, perímetro y volumen de figuras y cuerpos geométricos.
+                </p>
+                <div class="mt-6 flex items-center justify-center gap-6 text-xs text-slate-500">
+                    <div class="bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
+                        <span class="block text-[10px] uppercase text-slate-400">Puntaje Final</span>
+                        <strong id="cert-points" class="text-base text-emerald-600">0 Puntos</strong>
+                    </div>
+                    <div class="bg-white px-4 py-2 rounded-xl border border-slate-200 shadow-sm">
+                        <span class="block text-[10px] uppercase text-slate-400">Nivel Alcanzado</span>
+                        <strong id="cert-level" class="text-base text-indigo-600">Nivel 3</strong>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-center gap-3 no-print">
+                    <button onclick="window.print()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow">
+                        <i class="fa-solid fa-print mr-1.5"></i> Imprimir Diploma
+                    </button>
+                    <button onclick="document.getElementById('certificate-modal').classList.add('hidden')" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- LÓGICA JAVASCRIPT CON SEPARACIÓN TOTAL Y SINCRONIZACIÓN EN VIVO       -->
+    <!-- ===================================================================== -->
+    <script>
+        // MODO FORZADO (Permite exportar dos archivos HTML independientes)
+        const FORCED_PAGE_MODE = null; // null = detecta ?docente=1 | 'equipos' | 'docente'
+
+        // ------------------------------------------------------------------
+        // 1. BANCO DE 12 RETOS PROGRESIVOS (3 NIVELES)
+        // ------------------------------------------------------------------
+        const CHALLENGES = [
+            // NIVEL 1: EXPLORACIÓN
+            {
+                id: 'n1_1', level: 1,
+                title: 'Explorando Cuerpos Poliedros',
+                figureLabel: 'Prisma Hexagonal',
+                question: 'Observa este prisma con bases hexagonales. ¿Cuántas CARAS en total y cuántos VÉRTICES tiene este cuerpo geométrico?',
+                hint: 'Cuenta las 2 bases hexagonales más las 6 caras laterales rectangulares. Para los vértices, suma los 6 picos de arriba y los 6 de abajo.',
+                type: 'choice',
+                options: ['8 caras y 12 vértices', '6 caras y 12 vértices', '8 caras y 18 vértices', '7 caras y 10 vértices'],
+                correctIndex: 0,
+                explanation: '¡Exacto! Tiene 2 bases hexagonales + 6 caras laterales = 8 caras, y 6 vértices arriba + 6 abajo = 12 vértices.',
+                svg: `<svg viewBox="0 0 200 180" class="w-full h-full"><polygon points="60,25 140,25 170,50 140,75 60,75 30,50" fill="#c7d2fe" stroke="#4f46e5" stroke-width="2.5"/><polygon points="60,115 140,115 170,140 140,165 60,165 30,140" fill="#a5b4fc" fill-opacity="0.5" stroke="#4f46e5" stroke-width="2.5"/><line x1="30" y1="50" x2="30" y2="140" stroke="#4f46e5" stroke-width="2.5"/><line x1="60" y1="75" x2="60" y2="165" stroke="#4f46e5" stroke-width="2.5"/><line x1="140" y1="75" x2="140" y2="165" stroke="#4f46e5" stroke-width="2.5"/><line x1="170" y1="50" x2="170" y2="140" stroke="#4f46e5" stroke-width="2.5"/><line x1="60" y1="25" x2="60" y2="115" stroke="#4f46e5" stroke-width="1.5" stroke-dasharray="4"/><line x1="140" y1="25" x2="140" y2="115" stroke="#4f46e5" stroke-width="1.5" stroke-dasharray="4"/></svg>`
+            },
+            {
+                id: 'n1_2', level: 1,
+                title: 'Clasificación de Cuadriláteros',
+                figureLabel: 'Trapecio Isósceles',
+                question: 'Identifica esta figura plana: tiene un par de lados paralelos (base mayor B y base menor b) y sus lados no paralelos son iguales. ¿Cuál es su fórmula de área?',
+                hint: 'Es un trapecio. Su área promedia ambas bases y multiplica por la altura h.',
+                type: 'choice',
+                options: ['Trapecio • A = (B + b) × h / 2', 'Romboide • A = b × h', 'Rombo • A = (D × d) / 2', 'Pentágono • A = (P × a) / 2'],
+                correctIndex: 0,
+                explanation: '¡Correcto! Es un trapecio y su área se calcula sumando Base mayor + base menor, multiplicando por la altura y dividiendo entre 2.',
+                svg: `<svg viewBox="0 0 200 160" class="w-full h-full"><polygon points="60,35 140,35 175,125 25,125" fill="#fde68a" stroke="#d97706" stroke-width="3"/><line x1="60" y1="35" x2="60" y2="125" stroke="#b45309" stroke-width="2" stroke-dasharray="4"/><text x="95" y="27" font-size="12" font-weight="bold" fill="#92400e">b</text><text x="95" y="143" font-size="12" font-weight="bold" fill="#92400e">B</text><text x="65" y="85" font-size="12" font-weight="bold" fill="#92400e">h</text></svg>`
+            },
+            {
+                id: 'n1_3', level: 1,
+                title: 'Cuerpos Redondos y Desarrollo Plano',
+                figureLabel: 'Cilindro Circular Recto',
+                question: 'Si desarmamos un cilindro (como una lata) para ver su plantilla plana, ¿qué figuras geométricas la componen?',
+                hint: 'Piensa en las dos tapas superior e inferior y en la etiqueta que rodea el cuerpo.',
+                type: 'choice',
+                options: ['2 círculos y 1 rectángulo', '2 círculos y 1 triángulo', '1 círculo y 1 sector circular', '2 óvalos y 2 cuadrados'],
+                correctIndex: 0,
+                explanation: '¡Muy bien! El desarrollo plano de un cilindro está formado por 2 círculos (bases) y 1 rectángulo (cara lateral).',
+                svg: `<svg viewBox="0 0 200 170" class="w-full h-full"><ellipse cx="100" cy="135" rx="50" ry="16" fill="#bae6fd" stroke="#0284c7" stroke-width="2.5"/><rect x="50" y="35" width="100" height="100" fill="#bae6fd" fill-opacity="0.6"/><line x1="50" y1="35" x2="50" y2="135" stroke="#0284c7" stroke-width="2.5"/><line x1="150" y1="35" x2="150" y2="135" stroke="#0284c7" stroke-width="2.5"/><ellipse cx="100" cy="35" rx="50" ry="16" fill="#7dd3fc" stroke="#0284c7" stroke-width="2.5"/></svg>`
+            },
+            {
+                id: 'n1_4', level: 1,
+                title: 'Elementos de una Pirámide',
+                figureLabel: 'Pirámide Cuadrangular',
+                question: 'Esta pirámide tiene base cuadrada y caras triangulares que se unen en la cúspide. ¿Cuántas ARISTAS (bordes) tiene en total?',
+                hint: 'Cuenta las 4 líneas de la base cuadrada más las 4 líneas inclinadas que suben a la punta.',
+                type: 'choice',
+                options: ['8 aristas', '5 aristas', '12 aristas', '6 aristas'],
+                correctIndex: 0,
+                explanation: '¡Correcto! 4 aristas de la base cuadrada + 4 aristas laterales = 8 aristas en total.',
+                svg: `<svg viewBox="0 0 200 170" class="w-full h-full"><polygon points="45,135 125,145 165,115 85,105" fill="#fbcfe8" stroke="#db2777" stroke-width="2"/><line x1="105" y1="25" x2="45" y2="135" stroke="#db2777" stroke-width="2.5"/><line x1="105" y1="25" x2="125" y2="145" stroke="#db2777" stroke-width="2.5"/><line x1="105" y1="25" x2="165" y2="115" stroke="#db2777" stroke-width="2.5"/><line x1="105" y1="25" x2="85" y2="105" stroke="#db2777" stroke-width="1.5" stroke-dasharray="4"/><circle cx="105" cy="25" r="3.5" fill="#be185d"/></svg>`
+            },
+
+            // NIVEL 2: RETOS MATEMÁTICOS
+            {
+                id: 'n2_1', level: 2,
+                title: 'Área de un Jardín Triangular',
+                figureLabel: 'Triángulo Rectángulo (8m × 6m × 10m)',
+                question: 'Un jardín triangular tiene base = 8 m, altura = 6 m y lado inclinado = 10 m. Calcula su ÁREA en metros cuadrados (m²).',
+                hint: 'Aplica A = (base × altura) / 2. Recuerda que la altura es perpendicular a la base (6 m).',
+                type: 'number', unit: 'm²', correctValue: 24, tolerance: 0.1,
+                explanation: 'Área = (8 × 6) / 2 = 48 / 2 = 24 m².',
+                svg: `<svg viewBox="0 0 200 160" class="w-full h-full"><polygon points="40,130 160,130 40,40" fill="#bbf7d0" stroke="#16a34a" stroke-width="3"/><rect x="40" y="118" width="12" height="12" fill="none" stroke="#16a34a" stroke-width="2"/><text x="90" y="148" font-size="13" font-weight="bold" fill="#15803d">8 m</text><text x="10" y="90" font-size="13" font-weight="bold" fill="#15803d">6 m</text><text x="108" y="80" font-size="13" font-weight="bold" fill="#15803d">10 m</text></svg>`
+            },
+            {
+                id: 'n2_2', level: 2,
+                title: 'Área de una Glorieta Circular',
+                figureLabel: 'Círculo (Radio r = 5 cm)',
+                question: 'Calcula el ÁREA de un círculo cuyo radio mide r = 5 cm. Utiliza π = 3.14.',
+                hint: 'Fórmula: A = π × r². Multiplica 3.14 × (5 × 5).',
+                type: 'number', unit: 'cm²', correctValue: 78.5, tolerance: 0.2,
+                explanation: 'A = 3.14 × 25 = 78.5 cm².',
+                svg: `<svg viewBox="0 0 200 160" class="w-full h-full"><circle cx="100" cy="80" r="58" fill="#fed7aa" stroke="#ea580c" stroke-width="3"/><line x1="100" y1="80" x2="158" y2="80" stroke="#9a3412" stroke-width="2.5"/><circle cx="100" cy="80" r="3.5" fill="#9a3412"/><text x="115" y="73" font-size="13" font-weight="bold" fill="#9a3412">r = 5 cm</text></svg>`
+            },
+            {
+                id: 'n2_3', level: 2,
+                title: 'Volumen de un Prisma Rectangular',
+                figureLabel: 'Caja (10 cm × 4 cm × 5 cm)',
+                question: 'Calcula el VOLUMEN de una caja rectangular que mide 10 cm de largo, 4 cm de ancho y 5 cm de alto.',
+                hint: 'Multiplica largo × ancho × alto.',
+                type: 'number', unit: 'cm³', correctValue: 200, tolerance: 0.1,
+                explanation: 'V = 10 × 4 × 5 = 200 cm³.',
+                svg: `<svg viewBox="0 0 200 160" class="w-full h-full"><polygon points="35,60 125,60 155,35 65,35" fill="#e9d5ff" stroke="#7e22ce" stroke-width="2"/><rect x="35" y="60" width="90" height="65" fill="#d8b4fe" stroke="#7e22ce" stroke-width="2.5"/><polygon points="125,60 155,35 155,100 125,125" fill="#c084fc" stroke="#7e22ce" stroke-width="2"/><text x="65" y="142" font-size="12" font-weight="bold" fill="#581c87">10 cm</text><text x="145" y="122" font-size="12" font-weight="bold" fill="#581c87">4 cm</text><text x="5" y="95" font-size="12" font-weight="bold" fill="#581c87">5 cm</text></svg>`
+            },
+            {
+                id: 'n2_4', level: 2,
+                title: 'Volumen de un Tinaco Cilíndrico',
+                figureLabel: 'Cilindro (r = 3 m, h = 10 m)',
+                question: 'Calcula el VOLUMEN de un cilindro con radio r = 3 m y altura h = 10 m. Considera π = 3.14.',
+                hint: 'V = Área_base × altura = (3.14 × 3²) × 10.',
+                type: 'number', unit: 'm³', correctValue: 282.6, tolerance: 0.5,
+                explanation: 'Área base = 3.14 × 9 = 28.26 m². Volumen = 28.26 × 10 = 282.6 m³.',
+                svg: `<svg viewBox="0 0 200 170" class="w-full h-full"><ellipse cx="100" cy="140" rx="45" ry="14" fill="#a5f3fc" stroke="#0891b2" stroke-width="2.5"/><rect x="55" y="35" width="90" height="105" fill="#a5f3fc" fill-opacity="0.5"/><line x1="55" y1="35" x2="55" y2="140" stroke="#0891b2" stroke-width="2.5"/><line x1="145" y1="35" x2="145" y2="140" stroke="#0891b2" stroke-width="2.5"/><ellipse cx="100" cy="35" rx="45" ry="14" fill="#67e8f9" stroke="#0891b2" stroke-width="2.5"/><line x1="100" y1="35" x2="145" y2="35" stroke="#155e75" stroke-width="2"/><text x="108" y="30" font-size="11" font-weight="bold" fill="#155e75">r=3m</text><text x="150" y="92" font-size="12" font-weight="bold" fill="#155e75">h=10m</text></svg>`
+            },
+
+            // NIVEL 3: DESAFÍO FINAL (VIDA COTIDIANA)
+            {
+                id: 'n3_1', level: 3,
+                title: 'Desafío 1: Llenado de una Alberca',
+                figureLabel: 'Alberca (10 m × 5 m × 2 m)',
+                question: 'Situación Cotidiana: Una alberca mide 10 m de largo, 5 m de ancho y 2 m de profundidad. Si se llena al 80% de su capacidad, ¿cuántos m³ de agua contiene?',
+                hint: 'Primero obtén el volumen total (10 × 5 × 2) y luego calcula el 80% (multiplica por 0.80).',
+                type: 'number', unit: 'm³', correctValue: 80, tolerance: 0.1,
+                explanation: 'Volumen total = 100 m³. Al 80% contiene 80 m³ de agua.',
+                svg: `<svg viewBox="0 0 200 160" class="w-full h-full"><polygon points="30,55 130,55 165,30 65,30" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/><rect x="30" y="70" width="100" height="55" fill="#38bdf8" fill-opacity="0.7"/><rect x="30" y="55" width="100" height="70" fill="none" stroke="#0284c7" stroke-width="2.5"/><polygon points="130,55 165,30 165,100 130,125" fill="#0ea5e9" fill-opacity="0.5" stroke="#0284c7" stroke-width="2"/><text x="65" y="142" font-size="11" font-weight="bold" fill="#0369a1">10 m</text><text x="150" y="118" font-size="11" font-weight="bold" fill="#0369a1">5 m</text><text x="5" y="95" font-size="11" font-weight="bold" fill="#0369a1">2 m</text><text x="55" y="102" font-size="11" font-weight="bold" fill="#ffffff">Agua 80%</text></svg>`
+            },
+            {
+                id: 'n3_2', level: 3,
+                title: 'Desafío 2: Etiqueta de una Lata',
+                figureLabel: 'Superficie Lateral (r = 4 cm, h = 10 cm)',
+                question: 'Situación Cotidiana: Se fabricará la etiqueta que rodea la cara lateral de una lata cilíndrica de radio r = 4 cm y altura h = 10 cm. ¿Cuántos cm² de papel se necesitan? (Usa π = 3.14).',
+                hint: 'El ancho de la etiqueta es el perímetro del círculo (2 × 3.14 × 4) y su alto es 10 cm.',
+                type: 'number', unit: 'cm²', correctValue: 251.2, tolerance: 0.5,
+                explanation: 'Perímetro = 2 × 3.14 × 4 = 25.12 cm. Área = 25.12 × 10 = 251.2 cm².',
+                svg: `<svg viewBox="0 0 200 160" class="w-full h-full"><ellipse cx="100" cy="130" rx="40" ry="12" fill="#cbd5e1" stroke="#475569" stroke-width="2"/><rect x="60" y="45" width="80" height="85" fill="#fef08a" stroke="#ca8a04" stroke-width="2"/><ellipse cx="100" cy="45" rx="40" ry="12" fill="#e2e8f0" stroke="#475569" stroke-width="2"/><text x="76" y="92" font-size="12" font-weight="bold" fill="#854d0e">ETIQUETA</text><text x="145" y="90" font-size="11" font-weight="bold" fill="#334155">h=10</text><text x="105" y="42" font-size="10" font-weight="bold" fill="#334155">r=4</text></svg>`
+            },
+            {
+                id: 'n3_3', level: 3,
+                title: 'Desafío 3: Pintura de una Fachada',
+                figureLabel: 'Rectángulo (8×4m) + Triángulo (8×3m)',
+                question: 'Situación Cotidiana: Se pintará el frente de una cabaña compuesto por un rectángulo de 8 m × 4 m y un techo triangular de 8 m de base × 3 m de altura. ¿Cuál es el ÁREA TOTAL a pintar?',
+                hint: 'Suma el área del rectángulo (8 × 4) más el área del triángulo ((8 × 3) / 2).',
+                type: 'number', unit: 'm²', correctValue: 44, tolerance: 0.1,
+                explanation: 'Rectángulo = 32 m² + Triángulo = 12 m² = 44 m² en total.',
+                svg: `<svg viewBox="0 0 200 170" class="w-full h-full"><polygon points="40,75 160,75 100,25" fill="#fca5a5" stroke="#dc2626" stroke-width="2.5"/><rect x="40" y="75" width="120" height="65" fill="#fed7aa" stroke="#ea580c" stroke-width="2.5"/><line x1="100" y1="25" x2="100" y2="75" stroke="#991b1b" stroke-width="1.5" stroke-dasharray="4"/><text x="105" y="55" font-size="11" font-weight="bold" fill="#991b1b">h=3m</text><text x="90" y="155" font-size="12" font-weight="bold" fill="#9a3412">8 m</text><text x="165" y="110" font-size="12" font-weight="bold" fill="#9a3412">4 m</text></svg>`
+            },
+            {
+                id: 'n3_4', level: 3,
+                title: 'Desafío 4: Escultura Piramidal',
+                figureLabel: 'Pirámide Base Cuadrada (Lado=6m, h=5m)',
+                question: 'Situación Cotidiana: Un monumento tiene forma de pirámide de base cuadrada de 6 m de lado y 5 m de altura. ¿Cuál es su VOLUMEN en metros cúbicos?',
+                hint: 'V = (Área de la base × altura) / 3 = (36 × 5) / 3.',
+                type: 'number', unit: 'm³', correctValue: 60, tolerance: 0.1,
+                explanation: 'Área base = 6 × 6 = 36 m². Volumen = (36 × 5) / 3 = 60 m³.',
+                svg: `<svg viewBox="0 0 200 170" class="w-full h-full"><polygon points="40,135 125,145 165,115 80,105" fill="#fde047" stroke="#ca8a04" stroke-width="2"/><line x1="102" y1="25" x2="40" y2="135" stroke="#ca8a04" stroke-width="2.5"/><line x1="102" y1="25" x2="125" y2="145" stroke="#ca8a04" stroke-width="2.5"/><line x1="102" y1="25" x2="165" y2="115" stroke="#ca8a04" stroke-width="2.5"/><line x1="102" y1="25" x2="102" y2="125" stroke="#854d0e" stroke-width="1.5" stroke-dasharray="4"/><text x="106" y="85" font-size="11" font-weight="bold" fill="#854d0e">h=5m</text><text x="72" y="155" font-size="12" font-weight="bold" fill="#854d0e">6 m</text></svg>`
+            }
+        ];
+
+        // ------------------------------------------------------------------
+        // 2. ESTADO COMPARTIDO Y SINCRONIZACIÓN (LOCAL + CLOUD OPCIONAL)
+        // ------------------------------------------------------------------
+        const STORAGE_KEY = 'geoaventura_live_teams_v3';
+        const CLOUD_CFG_KEY = 'geoaventura_cloud_cfg_v3';
+        const syncChannel = ('BroadcastChannel' in window) ? new BroadcastChannel('geoaventura_live_channel') : null;
+
+        const TEAM_COLORS = [
+            { bg: 'bg-indigo-600' }, { bg: 'bg-emerald-600' }, { bg: 'bg-amber-500' },
+            { bg: 'bg-rose-600' }, { bg: 'bg-cyan-600' }, { bg: 'bg-purple-600' },
+            { bg: 'bg-teal-600' }, { bg: 'bg-orange-600' }
+        ];
+
+        let state = loadLocalState();
+        let cloudConfig = loadCloudConfig();
+        let isTeacherView = false;
+        let currentTeamKey = null;
+        let stuChallengeIdx = 0;
+        let isProjectionMode = false;
+        let lastKnownPointsMap = {};
+
+        function loadLocalState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (parsed && typeof parsed.teams === 'object') return parsed;
+                }
+            } catch (e) {}
+            return { teams: {} };
+        }
+
+        function loadCloudConfig() {
+            const params = new URLSearchParams(window.location.search);
+            const urlParam = params.get('fb');
+            const roomParam = params.get('sala');
+            if (urlParam && roomParam) {
+                const cfg = { url: decodeURIComponent(urlParam).replace(/\/$/, ''), room: roomParam };
+                try { localStorage.setItem(CLOUD_CFG_KEY, JSON.stringify(cfg)); } catch (e) {}
+                return cfg;
+            }
+            try {
+                const raw = localStorage.getItem(CLOUD_CFG_KEY);
+                if (raw) return JSON.parse(raw);
+            } catch (e) {}
+            return { url: '', room: 'GRUPO1' };
+        }
+
+        function normalizeTeamKey(name) {
+            return name.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/g, '_');
+        }
+
+        function saveState(updatedTeamKey = null) {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch (e) {}
+
+            if (syncChannel) {
+                syncChannel.postMessage({ type: 'TEAMS_UPDATED', payload: state, updatedTeamKey });
+            }
+
+            // Sincronización con Firebase Realtime Database si está configurada
+            if (cloudConfig.url && cloudConfig.room) {
+                if (updatedTeamKey && state.teams[updatedTeamKey]) {
+                    fetch(`${cloudConfig.url}/geoaventura/${cloudConfig.room}/teams/${updatedTeamKey}.json`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(state.teams[updatedTeamKey])
+                    }).catch(() => {});
+                } else {
+                    fetch(`${cloudConfig.url}/geoaventura/${cloudConfig.room}/teams.json`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(state.teams)
+                    }).catch(() => {});
+                }
+            }
+        }
+
+        // Escuchar cambios desde otras pestañas (Equipos -> Docente)
+        if (syncChannel) {
+            syncChannel.onmessage = (ev) => {
+                if (ev.data && ev.data.type === 'TEAMS_UPDATED') {
+                    handleIncomingState(ev.data.payload);
+                }
+            };
+        }
+        window.addEventListener('storage', (e) => {
+            if (e.key === STORAGE_KEY && e.newValue) {
+                handleIncomingState(JSON.parse(e.newValue));
+            }
+        });
+
+        function handleIncomingState(incoming) {
+            if (!incoming || !incoming.teams) return;
+            // Detectar si algún equipo sumó puntos para mostrar notificación en el pizarrón docente
+            if (isTeacherView) {
+                Object.values(incoming.teams).forEach(t => {
+                    const prevPts = lastKnownPointsMap[t.key];
+                    if (prevPts !== undefined && t.points > prevPts) {
+                        showLiveToast(`${t.name} subió a ${t.points} punto${t.points === 1 ? '' : 's'}!`);
+                    }
+                    lastKnownPointsMap[t.key] = t.points;
+                });
+            }
+            state = incoming;
+            if (isTeacherView) {
+                renderTeacherScoreboard();
+                populateEvalTeamSelect();
+                renderEvaluationForm();
+            } else if (currentTeamKey && state.teams[currentTeamKey]) {
+                updateStudentHeader();
+                renderStudentChallenge();
+            }
+        }
+
+        // Polling suave si Firebase en la nube está activo
+        setInterval(() => {
+            if (!cloudConfig.url || !cloudConfig.room) return;
+            fetch(`${cloudConfig.url}/geoaventura/${cloudConfig.room}/teams.json`)
+                .then(r => r.ok ? r.json() : null)
+                .then(cloudTeams => {
+                    if (cloudTeams && typeof cloudTeams === 'object') {
+                        handleIncomingState({ teams: cloudTeams });
+                    }
+                })
+                .catch(() => {});
+        }, 3500);
+
+        // ------------------------------------------------------------------
+        // 3. INICIALIZACIÓN: SEPARACIÓN ESTRICTA DE PÁGINAS
+        // ------------------------------------------------------------------
+        window.onload = function() {
+            const params = new URLSearchParams(window.location.search);
+            isTeacherView = FORCED_PAGE_MODE === 'docente' || (FORCED_PAGE_MODE !== 'equipos' && params.get('docente') === '1');
+
+            if (isTeacherView) {
+                document.title = 'GeoAventura | Pizarrón Docente y Rankings';
+                document.getElementById('student-page').classList.add('hidden');
+                document.getElementById('teacher-page').classList.remove('hidden');
+
+                // Registrar puntos iniciales conocidos para detectar aumentos
+                Object.values(state.teams).forEach(t => { lastKnownPointsMap[t.key] = t.points; });
+
+                switchTeacherTab('rankings');
+                renderTeacherScoreboard();
+                updateShareLinksUI();
+            } else {
+                document.title = 'GeoAventura | Acceso para Equipos';
+                document.getElementById('teacher-page').classList.add('hidden');
+                document.getElementById('student-page').classList.remove('hidden');
+
+                if (cloudConfig.url) {
+                    document.getElementById('stu-sync-status-label').textContent = `Conectado a sala en vivo: ${cloudConfig.room}`;
+                }
+
+                // Restaurar sesión si el equipo recargó la pestaña
+                const savedSessionKey = sessionStorage.getItem('geo_active_team_key');
+                if (savedSessionKey && state.teams[savedSessionKey]) {
+                    enterTeamMission(savedSessionKey);
+                }
+            }
+        };
+
+        // ------------------------------------------------------------------
+        // 4. LÓGICA DE LA PÁGINA EXCLUSIVA DE EQUIPOS
+        // ------------------------------------------------------------------
+        function handleSimpleTeamLogin(e) {
+            e.preventDefault();
+            const rawName = document.getElementById('simple-team-name-input').value.trim();
+            const errEl = document.getElementById('login-name-error');
+
+            if (!rawName) {
+                errEl.classList.remove('hidden');
+                return;
+            }
+            errEl.classList.add('hidden');
+
+            const key = normalizeTeamKey(rawName) || ('equipo_' + Date.now());
+            const membersRaw = document.getElementById('simple-team-members-input').value.trim();
+            const membersList = membersRaw
+                ? membersRaw.split(',').map(m => m.trim()).filter(Boolean).slice(0, 5)
+                : [];
+
+            // Si el equipo aún no existe, crearlo y enviarlo al pizarrón del docente
+            if (!state.teams[key]) {
+                state.teams[key] = {
+                    key: key,
+                    name: rawName,
+                    members: membersList,
+                    points: 0,
+                    lastUpdate: Date.now(),
+                    solvedChallenges: [],
+                    checklist: [false, false, false, false],
+                    observation: [false, false],
+                    selfEval: { submitted: false, cooperation: 'Excelente', difficulty: 'Nivel 2: Retos Matemáticos', reflection: '' }
+                };
+            } else {
+                state.teams[key].name = rawName;
+                if (membersList.length > 0) state.teams[key].members = membersList;
+                state.teams[key].lastUpdate = Date.now();
+            }
+
+            saveState(key);
+            enterTeamMission(key);
+        }
+
+        function enterTeamMission(key) {
+            currentTeamKey = key;
+            try { sessionStorage.setItem('geo_active_team_key', key); } catch (e) {}
+
+            const team = state.teams[key];
+            if (!team) return;
+
+            document.getElementById('student-login-screen').classList.add('hidden');
+            document.getElementById('student-mission-screen').classList.remove('hidden');
+            document.getElementById('stu-points-pill').classList.remove('hidden');
+            document.getElementById('btn-stu-sync-code').classList.remove('hidden');
+            document.getElementById('btn-stu-logout').classList.remove('hidden');
+
+            const firstUnsolved = CHALLENGES.findIndex(c => !(team.solvedChallenges || []).includes(c.id));
+            stuChallengeIdx = firstUnsolved !== -1 ? firstUnsolved : 0;
+
+            updateStudentHeader();
+            renderStudentChallenge();
+        }
+
+        function logoutStudentTeam() {
+            currentTeamKey = null;
+            try { sessionStorage.removeItem('geo_active_team_key'); } catch (e) {}
+            document.getElementById('student-mission-screen').classList.add('hidden');
+            document.getElementById('student-login-screen').classList.remove('hidden');
+            document.getElementById('stu-points-pill').classList.add('hidden');
+            document.getElementById('btn-stu-sync-code').classList.add('hidden');
+            document.getElementById('btn-stu-logout').classList.add('hidden');
+            document.getElementById('stu-header-team-name').textContent = 'GeoAventura';
+            document.getElementById('stu-header-subtitle').textContent = 'El Desafío de las Dimensiones';
+            document.getElementById('stu-header-level-badge').classList.add('hidden');
+        }
+
+        function updateStudentHeader() {
+            const team = state.teams[currentTeamKey];
+            if (!team) return;
+            const lvl = getTeamLevel(team);
+            const lvlNames = { 1: 'Nivel 1: Exploración', 2: 'Nivel 2: Retos Matemáticos', 3: 'Nivel 3: Desafío Final' };
+
+            document.getElementById('stu-header-team-name').textContent = team.name;
+            document.getElementById('stu-header-subtitle').textContent = team.members && team.members.length > 0
+                ? `Integrantes: ${team.members.join(', ')}`
+                : 'Equipo en Misión';
+            document.getElementById('stu-header-points').textContent = team.points;
+            const badge = document.getElementById('stu-header-level-badge');
+            badge.textContent = lvlNames[lvl];
+            badge.classList.remove('hidden');
+        }
+
+        function studentSelectLevel(lvl) {
+            hideStudentSelfEval();
+            const idx = CHALLENGES.findIndex(c => c.level === lvl);
+            if (idx !== -1) {
+                stuChallengeIdx = idx;
+                renderStudentChallenge();
+            }
+        }
+
+        function renderStudentChallenge() {
+            const team = state.teams[currentTeamKey];
+            if (!team) return;
+
+            const solvedArr = team.solvedChallenges || [];
+            const challenge = CHALLENGES[stuChallengeIdx];
+            const alreadySolved = solvedArr.includes(challenge.id);
+
+            [1, 2, 3].forEach(l => {
+                const totalL = CHALLENGES.filter(c => c.level === l).length;
+                const solvedL = CHALLENGES.filter(c => c.level === l && solvedArr.includes(c.id)).length;
+                document.getElementById(`stu-lvl-${l}-count`).textContent = `${solvedL}/${totalL}`;
+
+                const card = document.getElementById(`stu-lvl-${l}`);
+                card.classList.remove('border-indigo-600', 'border-purple-600', 'border-amber-500', 'shadow-md');
+                card.classList.add('border-slate-200');
+                if (l === challenge.level) {
+                    card.classList.remove('border-slate-200');
+                    const bColor = l === 1 ? 'border-indigo-600' : l === 2 ? 'border-purple-600' : 'border-amber-500';
+                    card.classList.add(bColor, 'shadow-md');
+                }
+            });
+
+            const headerColors = { 1: 'bg-indigo-600', 2: 'bg-purple-600', 3: 'bg-amber-600' };
+            document.getElementById('stu-challenge-header').className = `${headerColors[challenge.level]} px-6 py-4 text-white flex flex-wrap items-center justify-between gap-2`;
+
+            const lvlList = CHALLENGES.filter(c => c.level === challenge.level);
+            const relPos = lvlList.findIndex(c => c.id === challenge.id) + 1;
+
+            document.getElementById('stu-challenge-badge').textContent = `Nivel ${challenge.level} • Reto ${relPos} de ${lvlList.length}`;
+            document.getElementById('stu-svg-container').innerHTML = challenge.svg;
+            document.getElementById('stu-figure-label').textContent = challenge.figureLabel;
+            document.getElementById('stu-challenge-title').textContent = challenge.title;
+            document.getElementById('stu-challenge-question').textContent = challenge.question;
+            document.getElementById('stu-hint-text').textContent = challenge.hint;
+            document.getElementById('stu-hint-box').classList.add('hidden');
+            document.getElementById('stu-feedback-banner').classList.add('hidden');
+
+            const area = document.getElementById('stu-interaction-area');
+            if (alreadySolved) {
+                area.innerHTML = `
+                    <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex items-center gap-2.5 text-emerald-800 text-sm font-bold">
+                            <i class="fa-solid fa-circle-check text-emerald-600 text-xl"></i>
+                            <span>¡Reto completado por ${team.name}! (+1 punto)</span>
+                        </div>
+                        <button onclick="stuNextChallenge()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded-xl">
+                            Continuar <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            if (challenge.type === 'choice') {
+                area.innerHTML = `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        ${challenge.options.map((opt, idx) => `
+                            <button onclick="submitStudentChoice(${idx})" class="text-left p-3.5 rounded-xl border-2 border-slate-200 hover:border-indigo-500 hover:bg-indigo-50/50 text-sm font-semibold text-slate-700 transition flex items-center gap-2.5">
+                                <span class="w-6 h-6 rounded-lg bg-slate-100 text-slate-600 flex items-center justify-center text-xs font-bold shrink-0">${String.fromCharCode(65 + idx)}</span>
+                                <span>${opt}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                `;
+            } else {
+                area.innerHTML = `
+                    <form onsubmit="submitStudentNumeric(event)" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                        <div class="relative flex-1">
+                            <input type="number" step="any" id="stu-num-input" required placeholder="Escriban su resultado..."
+                                class="w-full bg-slate-50 border-2 border-slate-300 focus:border-indigo-600 rounded-xl px-4 py-3 text-base font-bold text-slate-800 outline-none pr-14">
+                            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-bold text-slate-400">${challenge.unit}</span>
+                        </div>
+                        <button type="submit" class="btn-3d bg-indigo-600 hover:bg-indigo-500 border-indigo-800 text-white font-bold px-6 py-3 rounded-xl text-sm shadow-md flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check"></i> Comprobar
+                        </button>
+                    </form>
+                `;
+            }
+        }
+
+        function submitStudentChoice(idx) {
+            const challenge = CHALLENGES[stuChallengeIdx];
+            evaluateStudentAnswer(idx === challenge.correctIndex, challenge);
+        }
+
+        function submitStudentNumeric(e) {
+            e.preventDefault();
+            const challenge = CHALLENGES[stuChallengeIdx];
+            const val = parseFloat(document.getElementById('stu-num-input').value);
+            if (isNaN(val)) return;
+            evaluateStudentAnswer(Math.abs(val - challenge.correctValue) <= challenge.tolerance, challenge);
+        }
+
+        function evaluateStudentAnswer(isCorrect, challenge) {
+            const team = state.teams[currentTeamKey];
+            if (!team) return;
+            if (!team.solvedChallenges) team.solvedChallenges = [];
+
+            const banner = document.getElementById('stu-feedback-banner');
+            const icon = document.getElementById('stu-feedback-icon');
+            const title = document.getElementById('stu-feedback-title');
+            const exp = document.getElementById('stu-feedback-explanation');
+            const nextBtn = document.getElementById('stu-btn-next-success');
+
+            banner.classList.remove('hidden', 'bg-emerald-50', 'border-emerald-300', 'text-emerald-900', 'bg-rose-50', 'border-rose-300', 'text-rose-900');
+
+            if (isCorrect) {
+                banner.classList.add('bg-emerald-50', 'border-emerald-300', 'text-emerald-900');
+                icon.className = 'w-8 h-8 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 mt-0.5';
+                icon.innerHTML = '<i class="fa-solid fa-check"></i>';
+                title.textContent = '¡Correcto! +1 Punto para su equipo';
+                exp.textContent = challenge.explanation;
+                nextBtn.classList.remove('hidden');
+
+                if (!team.solvedChallenges.includes(challenge.id)) {
+                    team.solvedChallenges.push(challenge.id);
+                    team.points += 1;
+                    team.lastUpdate = Date.now();
+                    saveState(currentTeamKey); // Envía el punto al ranking del docente en tiempo real
+                    updateStudentHeader();
+                    triggerConfetti(55);
+                }
+            } else {
+                banner.classList.add('bg-rose-50', 'border-rose-300', 'text-rose-900');
+                icon.className = 'w-8 h-8 rounded-full bg-rose-500 text-white flex items-center justify-center shrink-0 mt-0.5';
+                icon.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+                title.textContent = 'Respuesta incorrecta • ¡Revisen y vuelvan a intentar!';
+                exp.textContent = 'Verifiquen las medidas de la figura y la fórmula antes de enviar de nuevo.';
+                nextBtn.classList.add('hidden');
+            }
+        }
+
+        function stuNextChallenge() {
+            if (stuChallengeIdx < CHALLENGES.length - 1) {
+                stuChallengeIdx++;
+                renderStudentChallenge();
+            } else {
+                switchStudentToSelfEval();
+                triggerConfetti(100);
+            }
+        }
+
+        function stuPrevChallenge() {
+            if (stuChallengeIdx > 0) {
+                stuChallengeIdx--;
+                renderStudentChallenge();
+            }
+        }
+
+        function switchStudentToSelfEval() {
+            const team = state.teams[currentTeamKey];
+            document.getElementById('student-challenge-card').classList.add('hidden');
+            document.getElementById('student-self-eval-card').classList.remove('hidden');
+
+            if (team && team.selfEval) {
+                document.getElementById('stu-eval-coop').value = team.selfEval.cooperation || 'Excelente';
+                document.getElementById('stu-eval-diff').value = team.selfEval.difficulty || 'Nivel 2: Retos Matemáticos';
+                document.getElementById('stu-eval-reflection').value = team.selfEval.reflection || '';
+                document.getElementById('stu-eval-sent-badge').classList.toggle('hidden', !team.selfEval.submitted);
+            }
+        }
+
+        function hideStudentSelfEval() {
+            document.getElementById('student-self-eval-card').classList.add('hidden');
+            document.getElementById('student-challenge-card').classList.remove('hidden');
+        }
+
+        function submitStudentSelfEval() {
+            const team = state.teams[currentTeamKey];
+            if (!team) return;
+
+            team.selfEval = {
+                submitted: true,
+                cooperation: document.getElementById('stu-eval-coop').value,
+                difficulty: document.getElementById('stu-eval-diff').value,
+                reflection: document.getElementById('stu-eval-reflection').value.trim()
+            };
+            saveState(currentTeamKey);
+            document.getElementById('stu-eval-sent-badge').classList.remove('hidden');
+            triggerConfetti(60);
+        }
+
+        function showSyncCodeModal() {
+            const team = state.teams[currentTeamKey];
+            if (!team) return;
+            const lvl = getTeamLevel(team);
+            document.getElementById('generated-sync-code').textContent = `${team.name}|${team.points}|${lvl}`;
+            document.getElementById('sync-code-modal').classList.remove('hidden');
+        }
+
+        // ------------------------------------------------------------------
+        // 5. LÓGICA DE LA PÁGINA DEL DOCENTE Y RANKINGS EN VIVO
+        // ------------------------------------------------------------------
+        function switchTeacherTab(tab) {
+            ['rankings', 'sync', 'eval', 'plan'].forEach(t => {
+                document.getElementById(`teacher-view-${t}`).classList.add('hidden');
+                const btn = document.getElementById(`t-tab-${t}`);
+                btn.classList.remove('bg-indigo-600', 'text-white');
+                btn.classList.add('text-slate-300');
+            });
+
+            document.getElementById(`teacher-view-${tab}`).classList.remove('hidden');
+            const active = document.getElementById(`t-tab-${tab}`);
+            active.classList.add('bg-indigo-600', 'text-white');
+            active.classList.remove('text-slate-300');
+
+            if (tab === 'rankings') renderTeacherScoreboard();
+            if (tab === 'sync') updateShareLinksUI();
+            if (tab === 'eval') {
+                populateEvalTeamSelect();
+                renderEvaluationForm();
+            }
+        }
+
+        function toggleProjectionMode() {
+            isProjectionMode = !isProjectionMode;
+            document.getElementById('teacher-header').classList.toggle('hidden', isProjectionMode);
+            document.getElementById('teacher-ranking-controls').classList.toggle('hidden', isProjectionMode);
+            document.getElementById('projection-exit-bar').classList.toggle('hidden', !isProjectionMode);
+            if (isProjectionMode) switchTeacherTab('rankings');
+        }
+
+        function getTeamLevel(team) {
+            const solved = team.solvedChallenges || [];
+            if (solved.some(id => id.startsWith('n3_')) || team.points >= 8) return 3;
+            if (solved.some(id => id.startsWith('n2_')) || team.points >= 4) return 2;
+            return 1;
+        }
+
+        function renderTeacherScoreboard() {
+            const container = document.getElementById('teacher-scoreboard-list');
+            const teamsArr = Object.values(state.teams);
+            document.getElementById('total-teams-badge').textContent = teamsArr.length;
+
+            if (teamsArr.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 px-4 rounded-2xl border-2 border-dashed border-slate-700 bg-slate-800/40 space-y-3">
+                        <div class="w-14 h-14 rounded-2xl bg-slate-800 text-amber-400 flex items-center justify-center text-2xl mx-auto">
+                            <i class="fa-solid fa-hourglass-half"></i>
+                        </div>
+                        <h3 class="font-display text-xl font-bold text-white">Esperando a que ingresen los equipos...</h3>
+                        <p class="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
+                            Abre la <strong>Página de Equipos</strong> en otra pestaña o compártela con tus alumnos. En cuanto escriban el nombre de su equipo y resuelvan retos, sus puntajes aparecerán aquí en tiempo real.
+                        </p>
+                        <button onclick="openStudentPageTab()" class="mt-2 bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-xl text-xs shadow">
+                            <i class="fa-solid fa-arrow-up-right-from-square mr-1.5"></i> Abrir Página de Equipos ahora
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            // Ordenar por puntaje descendente (y desempatar por quien llegó primero)
+            const sorted = [...teamsArr].sort((a, b) => {
+                if (b.points !== a.points) return b.points - a.points;
+                return (a.lastUpdate || 0) - (b.lastUpdate || 0);
+            });
+
+            const maxPts = CHALLENGES.length;
+            const lvlLabels = { 1: 'Nivel 1: Exploración', 2: 'Nivel 2: Retos Matemáticos', 3: 'Nivel 3: Desafío Final' };
+
+            container.innerHTML = sorted.map((team, rankIdx) => {
+                const color = TEAM_COLORS[rankIdx % TEAM_COLORS.length];
+                const lvl = getTeamLevel(team);
+                const pct = Math.min(100, Math.round((team.points / maxPts) * 100));
+                const timeStr = team.lastUpdate ? new Date(team.lastUpdate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+                let badgeHTML = `<div class="w-11 h-11 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center font-display font-bold text-lg text-slate-400">#${rankIdx + 1}</div>`;
+                if (rankIdx === 0 && team.points > 0) {
+                    badgeHTML = `<div class="w-11 h-11 rounded-xl bg-amber-400/20 border border-amber-400 flex items-center justify-center text-amber-300 text-xl"><i class="fa-solid fa-crown"></i></div>`;
+                } else if (rankIdx === 1 && team.points > 0) {
+                    badgeHTML = `<div class="w-11 h-11 rounded-xl bg-slate-300/20 border border-slate-300 flex items-center justify-center text-slate-200 text-lg"><i class="fa-solid fa-medal"></i></div>`;
+                } else if (rankIdx === 2 && team.points > 0) {
+                    badgeHTML = `<div class="w-11 h-11 rounded-xl bg-amber-700/30 border border-amber-600 flex items-center justify-center text-amber-500 text-lg"><i class="fa-solid fa-medal"></i></div>`;
+                }
+
+                return `
+                    <div class="rounded-2xl p-4 sm:p-5 bg-slate-800/80 border ${rankIdx === 0 && team.points > 0 ? 'border-amber-400/80 shadow-lg' : 'border-slate-700'} transition">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                            <div class="flex items-center gap-3.5 min-w-0">
+                                ${badgeHTML}
+                                <div class="min-w-0">
+                                    <div class="flex flex-wrap items-center gap-2">
+                                        <span class="w-3 h-3 rounded-full ${color.bg} shrink-0"></span>
+                                        <h3 class="font-display font-bold text-lg sm:text-2xl text-white truncate">${team.name}</h3>
+                                        <span class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-700 text-sky-300">${lvlLabels[lvl]}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-400 mt-1 truncate">
+                                        ${team.members && team.members.length > 0 ? `<i class="fa-solid fa-users mr-1"></i> ${team.members.join(' • ')}` : 'Equipo conectado'}
+                                        ${timeStr ? ` • Última actividad: ${timeStr}` : ''}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Puntaje y Controles -->
+                            <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0">
+                                <div class="flex items-center gap-1.5 bg-slate-900/90 p-1.5 rounded-xl border border-slate-700">
+                                    <button onclick="teacherAdjustPoints('${team.key}', -1)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-rose-600 text-white font-bold transition" title="Restar 1 punto">-1</button>
+                                    <div class="px-3 text-center">
+                                        <span class="font-display font-bold text-2xl sm:text-3xl text-amber-300">${team.points}</span>
+                                        <span class="text-[10px] uppercase block text-slate-400 -mt-1">puntos</span>
+                                    </div>
+                                    <button onclick="teacherAdjustPoints('${team.key}', 1)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-emerald-600 text-white font-bold transition" title="Sumar 1 punto">+1</button>
+                                </div>
+                                <button onclick="deleteTeamFromBoard('${team.key}')" class="text-slate-500 hover:text-rose-400 p-2 text-xs" title="Eliminar equipo del pizarrón">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Barra de Progreso -->
+                        <div class="mt-3.5 flex items-center gap-3">
+                            <div class="flex-1 bg-slate-950 rounded-full h-2.5 overflow-hidden">
+                                <div class="${color.bg} h-2.5 rounded-full transition-all duration-500" style="width: ${pct}%"></div>
+                            </div>
+                            <span class="text-xs font-bold text-slate-300 w-16 text-right">${team.points}/${maxPts} retos</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function teacherAdjustPoints(key, delta) {
+            const team = state.teams[key];
+            if (!team) return;
+            team.points = Math.max(0, team.points + delta);
+            team.lastUpdate = Date.now();
+            lastKnownPointsMap[key] = team.points;
+            saveState(key);
+            renderTeacherScoreboard();
+        }
+
+        function deleteTeamFromBoard(key) {
+            delete state.teams[key];
+            delete lastKnownPointsMap[key];
+            saveState();
+            renderTeacherScoreboard();
+        }
+
+        function resetAllScores() {
+            state = { teams: {} };
+            lastKnownPointsMap = {};
+            saveState();
+            renderTeacherScoreboard();
+        }
+
+        function applySyncCode(e) {
+            e.preventDefault();
+            const raw = document.getElementById('teacher-sync-code-input').value.trim();
+            // Formato: NombreEquipo|Puntos|Nivel
+            const parts = raw.split('|');
+            if (parts.length < 2) return;
+            const name = parts[0].trim();
+            const pts = parseInt(parts[1], 10);
+            if (!name || isNaN(pts)) return;
+
+            const key = normalizeTeamKey(name);
+            if (!state.teams[key]) {
+                state.teams[key] = {
+                    key, name, members: [], points: pts, lastUpdate: Date.now(),
+                    solvedChallenges: [], checklist: [false, false, false, false], observation: [false, false],
+                    selfEval: { submitted: false }
+                };
+            } else {
+                state.teams[key].points = pts;
+                state.teams[key].lastUpdate = Date.now();
+            }
+            lastKnownPointsMap[key] = pts;
+            saveState(key);
+            renderTeacherScoreboard();
+            document.getElementById('teacher-sync-code-input').value = '';
+            showLiveToast(`${name} actualizado a ${pts} puntos`);
+        }
+
+        function showLiveToast(msg) {
+            const toast = document.getElementById('live-score-toast');
+            document.getElementById('live-toast-text').textContent = msg;
+            toast.classList.remove('hidden');
+            triggerConfetti(35);
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => toast.classList.add('hidden'), 4000);
+        }
+
+        // Enlaces, Descarga de Archivos Separados y Firebase Nube
+        function getStudentShareUrl() {
+            const base = `${window.location.origin}${window.location.pathname}`;
+            if (cloudConfig.url && cloudConfig.room) {
+                return `${base}?fb=${encodeURIComponent(cloudConfig.url)}&sala=${encodeURIComponent(cloudConfig.room)}`;
+            }
+            return base;
+        }
+
+        function updateShareLinksUI() {
+            const input = document.getElementById('student-share-url');
+            if (input) input.value = getStudentShareUrl();
+            const fbInput = document.getElementById('firebase-url-input');
+            const roomInput = document.getElementById('firebase-room-input');
+            if (fbInput) fbInput.value = cloudConfig.url || '';
+            if (roomInput) roomInput.value = cloudConfig.room || 'GRUPO1';
+        }
+
+        function copyStudentUrl() {
+            const input = document.getElementById('student-share-url');
+            input.select();
+            document.execCommand('copy');
+            const btn = document.getElementById('btn-copy-stu-url');
+            const orig = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> ¡Copiado!';
+            setTimeout(() => btn.innerHTML = orig, 2200);
+        }
+
+        function openStudentPageTab() {
+            window.open(getStudentShareUrl(), '_blank');
+        }
+
+        function saveCloudConfig() {
+            const url = document.getElementById('firebase-url-input').value.trim().replace(/\/$/, '');
+            const room = (document.getElementById('firebase-room-input').value.trim() || 'GRUPO1').toUpperCase();
+            cloudConfig = { url, room };
+            try { localStorage.setItem(CLOUD_CFG_KEY, JSON.stringify(cloudConfig)); } catch (e) {}
+            updateShareLinksUI();
+            document.getElementById('cloud-status-msg').textContent = url
+                ? `✅ Nube activada para la sala "${room}". Copia y comparte el nuevo enlace de arriba con los equipos.`
+                : 'Sincronización local activa entre pestañas.';
+        }
+
+        function downloadStandaloneHTML(targetMode) {
+            const docClone = document.documentElement.cloneNode(true);
+            // Limpiar estados dinámicos antes de serializar
+            const bodyEl = docClone.querySelector('body');
+            bodyEl.querySelector('#student-page').classList.add('hidden');
+            bodyEl.querySelector('#teacher-page').classList.add('hidden');
+            bodyEl.querySelector('#student-login-screen').classList.remove('hidden');
+            bodyEl.querySelector('#student-mission-screen').classList.add('hidden');
+
+            let htmlStr = '<!DOCTYPE html>\n' + docClone.outerHTML;
+            htmlStr = htmlStr.replace(
+                "const FORCED_PAGE_MODE = null;",
+                `const FORCED_PAGE_MODE = '${targetMode}';`
+            );
+
+            const blob = new Blob([htmlStr], { type: 'text/html;charset=utf-8' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = targetMode === 'docente' ? 'docente_rankings.html' : 'equipos.html';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Evaluación Formativa
+        const CHECKLIST_CRITERIA = [
+            'Identificación de las figuras y cuerpos geométricos.',
+            'Uso correcto de fórmulas (área, perímetro y volumen).',
+            'Procedimiento realizado correctamente.',
+            'Resultado correcto.'
+        ];
+        const OBSERVATION_CRITERIA = [
+            'Trabajan de forma armónica en equipo.',
+            'El trabajo está repartido en el equipo (ninguno se queda sin hacer nada).'
+        ];
+
+        function populateEvalTeamSelect() {
+            const sel = document.getElementById('eval-team-select');
+            if (!sel) return;
+            const teamsArr = Object.values(state.teams);
+            if (teamsArr.length === 0) {
+                sel.innerHTML = '<option value="">Sin equipos registrados aún</option>';
+                return;
+            }
+            const prev = sel.value;
+            sel.innerHTML = teamsArr.map(t => `<option value="${t.key}">${t.name} (${t.points} pts)</option>`).join('');
+            if (prev && state.teams[prev]) sel.value = prev;
+        }
+
+        function renderEvaluationForm() {
+            const sel = document.getElementById('eval-team-select');
+            if (!sel || !sel.value || !state.teams[sel.value]) {
+                document.getElementById('checklist-container').innerHTML = '<p class="text-xs text-slate-400">Esperando que ingresen equipos...</p>';
+                document.getElementById('observation-container').innerHTML = '';
+                document.getElementById('teacher-view-self-eval').innerHTML = '';
+                return;
+            }
+            const team = state.teams[sel.value];
+            if (!team.checklist) team.checklist = [false, false, false, false];
+            if (!team.observation) team.observation = [false, false];
+
+            document.getElementById('checklist-container').innerHTML = CHECKLIST_CRITERIA.map((c, i) => `
+                <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer hover:bg-indigo-50/40">
+                    <input type="checkbox" ${team.checklist[i] ? 'checked' : ''} onchange="toggleTeacherCheck('${team.key}', 'checklist', ${i}, this.checked)" class="mt-1 w-4 h-4 text-indigo-600 rounded">
+                    <span class="text-xs sm:text-sm font-medium text-slate-700">${c}</span>
+                </label>
+            `).join('');
+
+            document.getElementById('observation-container').innerHTML = OBSERVATION_CRITERIA.map((c, i) => `
+                <label class="flex items-start gap-3 p-3.5 rounded-xl border border-slate-200 bg-slate-50 cursor-pointer hover:bg-emerald-50/40">
+                    <input type="checkbox" ${team.observation[i] ? 'checked' : ''} onchange="toggleTeacherCheck('${team.key}', 'observation', ${i}, this.checked)" class="mt-1 w-4 h-4 text-emerald-600 rounded">
+                    <span class="text-xs sm:text-sm font-medium text-slate-700">${c}</span>
+                </label>
+            `).join('');
+
+            const se = team.selfEval || {};
+            const selfEvalBox = document.getElementById('teacher-view-self-eval');
+            if (se.submitted) {
+                selfEvalBox.innerHTML = `
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs sm:text-sm">
+                        <div class="bg-white p-3 rounded-xl border border-amber-200">
+                            <span class="text-slate-400 block text-xs">Participación percibida:</span>
+                            <strong class="text-slate-800">${se.cooperation}</strong>
+                        </div>
+                        <div class="bg-white p-3 rounded-xl border border-amber-200">
+                            <span class="text-slate-400 block text-xs">Nivel más retador:</span>
+                            <strong class="text-slate-800">${se.difficulty}</strong>
+                        </div>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-amber-200 mt-2 text-xs sm:text-sm">
+                        <span class="text-slate-400 block text-xs">Reflexión del equipo:</span>
+                        <p class="text-slate-800 italic mt-0.5">"${se.reflection || 'Sin comentarios adicionales.'}"</p>
+                    </div>
+                `;
+            } else {
+                selfEvalBox.innerHTML = `<p class="text-xs text-amber-800 italic">El equipo aún no ha enviado su autoevaluación final.</p>`;
+            }
+        }
+
+        function toggleTeacherCheck(key, field, idx, val) {
+            const team = state.teams[key];
+            if (team) {
+                team[field][idx] = val;
+                saveState(key);
+            }
+        }
+
+        // Diplomas y Premiación
+        function generateCertificate(specificKey = null) {
+            const sel = document.getElementById('eval-team-select');
+            const key = specificKey || (sel ? sel.value : null);
+            const team = key ? state.teams[key] : Object.values(state.teams)[0];
+            if (!team) return;
+
+            document.getElementById('cert-heading').textContent = '¡Reconocimiento al Desempeño!';
+            document.getElementById('cert-team-name').textContent = team.name;
+            document.getElementById('cert-members').innerHTML = (team.members || []).map(m =>
+                `<span class="px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-xs font-semibold">${m}</span>`
+            ).join('');
+            document.getElementById('cert-points').textContent = `${team.points} Puntos`;
+            document.getElementById('cert-level').textContent = `Nivel ${getTeamLevel(team)}`;
+
+            document.getElementById('certificate-modal').classList.remove('hidden');
+            triggerConfetti(110);
+        }
+
+        function announceWinner() {
+            const sorted = Object.values(state.teams).sort((a, b) => b.points - a.points);
+            if (!sorted[0]) return;
+            generateCertificate(sorted[0].key);
+            document.getElementById('cert-heading').textContent = '🏆 ¡Equipo Ganador de GeoAventura! 🏆';
+        }
+
+        function toggleFormulaModal(show) {
+            document.getElementById('formula-modal').classList.toggle('hidden', !show);
+        }
+
+        function triggerConfetti(count = 70) {
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: count, spread: 75, origin: { y: 0.65 } });
+            }
+        }
+    </script>
+</body>
+</html>
