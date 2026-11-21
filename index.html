@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sobrevivientes de Isla Polígono</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style id="estilos">
+:root{--acento:#ea580c;--acento2:#fb923c;--tinta:#3b2a1a;--papel:#fffdf8}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--tinta);background:#f3e9d4;
+ background-image:radial-gradient(circle at 15% 0%,rgba(255,255,255,.7),transparent 45%),radial-gradient(circle at 90% 100%,rgba(234,88,12,.08),transparent 40%),repeating-linear-gradient(0deg,rgba(120,90,40,.04) 0 1px,transparent 1px 30px);min-height:100vh;transition:background-color .8s}
+h1,h2,h3,.titulo{font-family:'Baloo 2','Nunito',sans-serif;line-height:1.1}
+body.atm-0{--acento:#ea580c;--acento2:#fb923c}
+body.atm-1{--acento:#4f46e5;--acento2:#818cf8}
+body.atm-2{--acento:#0891b2;--acento2:#22d3ee}
+body.atm-3{--acento:#db2777;--acento2:#f472b6}
+body.atm-4{--acento:#d97706;--acento2:#fbbf24}
+.wrap{max-width:1040px;margin:0 auto;padding:0 14px}
+.bitacora{background:var(--papel);border:1px solid #eadcc0;border-radius:22px;box-shadow:0 26px 50px -24px rgba(70,45,10,.5),0 1px 0 rgba(255,255,255,.9) inset;position:relative}
+.bitacora.cuadricula{background-image:linear-gradient(rgba(14,116,144,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(14,116,144,.05) 1px,transparent 1px);background-size:22px 22px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;border:0;cursor:pointer;font-weight:800;border-radius:14px;padding:.8rem 1.3rem;font-family:inherit;font-size:1rem;transition:transform .12s,box-shadow .12s,filter .2s;text-decoration:none}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.6)}
+.btn-prim{background:linear-gradient(180deg,var(--acento2),var(--acento));color:#fff;box-shadow:0 5px 0 rgba(0,0,0,.22),0 14px 26px -12px var(--acento)}
+.btn-prim:not(:disabled):active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.22)}
+.btn-sec{background:#fff;color:var(--tinta);border:2px solid #e6d5b3;box-shadow:0 4px 0 #e6d5b3}
+.btn-sec:not(:disabled):active{transform:translateY(3px);box-shadow:0 1px 0 #e6d5b3}
+.btn-mini{padding:.45rem .8rem;font-size:.85rem;border-radius:10px}
+.chip{display:inline-flex;align-items:center;gap:.35rem;background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.35);color:#fff;border-radius:999px;padding:.3rem .75rem;font-weight:800;font-size:.9rem;backdrop-filter:blur(4px);white-space:nowrap}
+.cielo{position:relative;overflow:hidden;color:#fff;transition:background 1s}
+.atm-0 .cielo{background:linear-gradient(160deg,#ff7e5f 0%,#feb47b 45%,#7fd3e6 100%)}
+.atm-1 .cielo{background:linear-gradient(160deg,#1f2a44 0%,#3c4f76 50%,#6b7f99 100%)}
+.atm-2 .cielo{background:linear-gradient(160deg,#075985 0%,#0891b2 50%,#5eead4 100%)}
+.atm-3 .cielo{background:linear-gradient(160deg,#060b24 0%,#1b1f4b 55%,#3d1f5c 100%)}
+.atm-4 .cielo{background:linear-gradient(160deg,#f59e0b 0%,#fcd34d 45%,#60a5fa 100%)}
+.deco{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 1s}
+.atm-0 .deco-sol{opacity:1}.atm-1 .deco-lluvia{opacity:1}.atm-2 .deco-agua{opacity:1}.atm-3 .deco-noche{opacity:1}.atm-4 .deco-sol{opacity:1}
+.deco-sol::before{content:"";position:absolute;right:8%;top:-40px;width:150px;height:150px;border-radius:50%;background:radial-gradient(circle,#fff6c9 0%,#ffd166 40%,rgba(255,209,102,0) 70%)}
+.deco-lluvia{background-image:repeating-linear-gradient(105deg,rgba(255,255,255,.18) 0 1px,transparent 1px 14px);background-size:200% 200%;animation:lluvia .6s linear infinite}
+@keyframes lluvia{to{background-position:-28px 60px}}
+.deco-agua{background:radial-gradient(ellipse at 20% 120%,rgba(255,255,255,.35),transparent 50%),radial-gradient(ellipse at 80% 130%,rgba(255,255,255,.25),transparent 50%)}
+.deco-noche{background-image:radial-gradient(1.5px 1.5px at 10% 20%,#fff,transparent),radial-gradient(1px 1px at 25% 60%,#fff,transparent),radial-gradient(1.5px 1.5px at 40% 30%,#fff,transparent),radial-gradient(1px 1px at 55% 75%,#fff,transparent),radial-gradient(2px 2px at 70% 15%,#fff,transparent),radial-gradient(1px 1px at 85% 55%,#fff,transparent),radial-gradient(1.5px 1.5px at 93% 25%,#fff,transparent),radial-gradient(1px 1px at 5% 80%,#fff,transparent),radial-gradient(1px 1px at 33% 85%,#fff,transparent),radial-gradient(1.5px 1.5px at 63% 45%,#fff,transparent)}
+.bengala{position:absolute;right:12%;bottom:-20px;width:14px;height:14px;border-radius:50%;background:#ff4d6d;box-shadow:0 0 18px 8px rgba(255,77,109,.8),0 0 60px 30px rgba(255,77,109,.35);animation:bengala 4.5s ease-out infinite}
+@keyframes bengala{0%{transform:translateY(0);opacity:0}10%{opacity:1}60%{transform:translateY(-120px);opacity:1}100%{transform:translateY(-110px) scale(1.6);opacity:0}}
+.barra{height:14px;border-radius:999px;background:rgba(0,0,0,.25);overflow:hidden;border:1px solid rgba(255,255,255,.35)}
+.barra>i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#fde047,#fb923c,#f43f5e);box-shadow:0 0 12px rgba(253,224,71,.8);transition:width 1.2s cubic-bezier(.2,.8,.2,1)}
+.op{display:flex;align-items:center;gap:.7rem;width:100%;text-align:left;background:#fff;border:2px solid #e8d8b8;border-radius:16px;padding:.85rem 1rem;font:inherit;font-weight:700;font-size:1.02rem;color:var(--tinta);cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s;box-shadow:0 3px 0 #eadcc0}
+.op:hover:not(:disabled){border-color:var(--acento);transform:translateY(-2px);box-shadow:0 6px 0 #eadcc0}
+.op .letra{flex:none;width:2rem;height:2rem;border-radius:10px;display:grid;place-items:center;background:#fdf1dc;color:var(--acento);font-weight:900}
+.op.descartada{opacity:.5;text-decoration:line-through;background:#fff1f2;border-color:#fecdd3}
+.op.correcta{background:#ecfdf5;border-color:#34d399;box-shadow:0 3px 0 #a7f3d0}
+.op:disabled{cursor:default}
+.escena{display:block;width:100%;height:auto;border-radius:16px;border:1px solid #e9dcc2;background:#fff}
+.cota-txt{font:800 14px 'Nunito',sans-serif;paint-order:stroke;stroke-width:4px;stroke-linejoin:round;text-anchor:middle;dominant-baseline:middle}
+.lupa-on .escena{outline:3px dashed #f59e0b;outline-offset:3px}
+.lupa-on .dato{animation:brillo 1.2s ease-in-out infinite}
+@keyframes brillo{0%,100%{opacity:1}50%{opacity:.35}}
+.lupa-on text.dato{fill:#dc2626 !important;font-size:16px}
+.lupa-on circle.dato{fill:#dc2626 !important;r:6px}
+.caja-lupa{background:#fffbeb;border:2px dashed #f59e0b;border-radius:14px;padding:.8rem 1rem}
+.fb-error{background:#fff1f2;border:2px solid #fda4af;border-radius:16px;padding:1rem}
+.fb-ok{background:#ecfdf5;border:2px solid #6ee7b7;border-radius:16px;padding:1rem}
+.estacion{transition:fill .6s}
+.estacion.hecha{fill:#fde047;filter:drop-shadow(0 0 6px #fde047)}
+.estacion.actual{animation:latido 1.6s ease-in-out infinite;transform-box:fill-box;transform-origin:center}
+@keyframes latido{50%{transform:scale(1.25)}}
+.ruta-hecha{stroke:#fde047;filter:drop-shadow(0 0 3px #fbbf24)}
+.insignia{transition:filter .6s,opacity .6s,transform .4s}
+.insignia.bloqueada{filter:grayscale(1);opacity:.35}
+.insignia.nueva{animation:pop .9s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{0%{transform:scale(.2) rotate(-30deg)}100%{transform:scale(1) rotate(0)}}
+.modal-fondo{position:fixed;inset:0;background:rgba(25,15,5,.62);backdrop-filter:blur(4px);display:grid;place-items:center;z-index:50;padding:16px;animation:aparece .3s}
+.modal{max-width:440px;width:100%;animation:pop .5s cubic-bezier(.2,1.4,.4,1)}
+@keyframes aparece{from{opacity:0}}
+.radio{background:#14231a;border-radius:24px;border:6px solid #2b3b2f;box-shadow:inset 0 0 40px rgba(0,0,0,.6),0 30px 60px -20px rgba(0,0,0,.6);color:#9cffb0;font-family:'Courier New',ui-monospace,monospace;position:relative;overflow:hidden}
+.radio::after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 2px,transparent 2px 4px);pointer-events:none}
+.led{width:12px;height:12px;border-radius:50%;background:#ef4444;box-shadow:0 0 10px #ef4444;animation:parpadeo 1s steps(2) infinite}
+@keyframes parpadeo{50%{opacity:.2}}
+.onda span{display:inline-block;width:4px;margin:0 1px;background:#9cffb0;border-radius:2px;animation:onda 1s ease-in-out infinite}
+@keyframes onda{50%{transform:scaleY(.3)}}
+.cursor::after{content:"▋";animation:parpadeo .8s steps(2) infinite}
+.cajon{position:fixed;top:0;right:0;height:100%;width:min(380px,92vw);background:var(--papel);z-index:60;box-shadow:-20px 0 50px rgba(0,0,0,.3);transform:translateX(105%);transition:transform .35s cubic-bezier(.2,.8,.2,1);overflow:auto}
+.cajon.abierto{transform:none}
+.formula{display:flex;justify-content:space-between;gap:.6rem;padding:.55rem .2rem;border-bottom:1px dashed #e6d5b3;font-weight:700}
+.formula b{font-family:'Courier New',monospace;color:var(--acento);white-space:nowrap}
+.avatar-op{border:3px solid #e8d8b8;border-radius:18px;background:#fff;padding:.8rem .5rem;cursor:pointer;transition:all .2s;text-align:center}
+.avatar-op:hover{transform:translateY(-3px)}
+.avatar-op.sel{border-color:var(--acento);box-shadow:0 0 0 4px rgba(234,88,12,.18);background:#fff7ed}
+.campo{width:100%;border:2px solid #e6d5b3;border-radius:14px;padding:.8rem 1rem;font:inherit;font-weight:700;font-size:1.05rem;background:#fff;color:var(--tinta);outline:none}
+.campo:focus{border-color:var(--acento);box-shadow:0 0 0 4px rgba(234,88,12,.15)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1f2937;color:#fff;padding:.75rem 1.2rem;border-radius:14px;font-weight:800;z-index:80;box-shadow:0 10px 30px rgba(0,0,0,.3);animation:aparece .3s}
+.sello{position:absolute;right:18px;top:18px;transform:rotate(-14deg);border:4px double #b91c1c;color:#b91c1c;font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.3rem;padding:.2rem .8rem;border-radius:10px;opacity:.85;letter-spacing:.05em}
+.dia-tab{flex:1;min-width:0;border-radius:14px;padding:.5rem .4rem;text-align:center;font-weight:800;font-size:.8rem;border:2px solid #e8d8b8;background:#fff}
+.dia-tab.hecho{background:#ecfdf5;border-color:#6ee7b7;color:#047857}
+.dia-tab.actual{border-color:var(--acento);background:#fff7ed;color:var(--acento)}
+.dia-tab.bloq{opacity:.55;background:#f5efe2}
+.escala button{border:2px solid #e8d8b8;background:#fff;border-radius:12px;padding:.45rem .6rem;font-weight:800;cursor:pointer;font-family:inherit;font-size:.85rem}
+.escala button.sel{border-color:var(--acento);background:#fff7ed;color:var(--acento)}
+.tabla{width:100%;border-collapse:separate;border-spacing:0 6px}
+.tabla th{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:#8a6d45;text-align:left;padding:.3rem .6rem}
+.tabla td{background:#fff;padding:.6rem;border-top:1px solid #efe3cb;border-bottom:1px solid #efe3cb;vertical-align:middle}
+.tabla td:first-child{border-left:1px solid #efe3cb;border-radius:12px 0 0 12px}
+.tabla td:last-child{border-right:1px solid #efe3cb;border-radius:0 12px 12px 0}
+.punto{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:8px;font-size:.75rem;font-weight:900;margin-right:2px}
+.p-ok{background:#d1fae5;color:#047857}.p-star{background:#fef3c7;color:#b45309}.p-act{background:#ffedd5;color:#c2410c;outline:2px solid #fdba74}.p-no{background:#f1ece2;color:#b9a888}
+.pestana{border:0;background:transparent;font:inherit;font-weight:800;padding:.7rem 1rem;border-radius:12px 12px 0 0;cursor:pointer;color:#8a6d45}
+.pestana.act{background:var(--papel);color:var(--acento);box-shadow:0 -4px 12px -6px rgba(0,0,0,.15)}
+.proyeccion{position:fixed;inset:0;z-index:90;background:radial-gradient(ellipse at top,#1b1f4b,#060b24);color:#fff;overflow:auto;padding:2rem}
+.proyeccion .tabla td{background:rgba(255,255,255,.07);border-color:rgba(255,255,255,.1);color:#fff;font-size:1.25rem}
+.proyeccion .tabla th{color:#c7d2fe;font-size:.95rem}
+.gota-cae{animation:cae 1.4s linear infinite}
+@keyframes cae{from{transform:translateY(-10px);opacity:0}30%{opacity:1}to{transform:translateY(30px);opacity:0}}
+.luz{animation:parpadeo 1.2s steps(2) infinite}
+.agua-cae{animation:aguacae 1s linear infinite}
+@keyframes aguacae{to{stroke-dashoffset:-24}}
+.flota{animation:flota 3s ease-in-out infinite}
+@keyframes flota{50%{transform:translateY(-6px)}}
+/* Respaldo mínimo por si Tailwind (CDN) no carga sin internet */
+.flex{display:flex}.inline-flex{display:inline-flex}.grid{display:grid}.block{display:block}.inline-block{display:inline-block}.flex-wrap{flex-wrap:wrap}.flex-1{flex:1 1 0%}
+.items-center{align-items:center}.items-start{align-items:flex-start}.justify-between{justify-content:space-between}.justify-center{justify-content:center}.justify-around{justify-content:space-around}.justify-start{justify-content:flex-start}.place-items-center{place-items:center}
+.gap-1{gap:.25rem}.gap-2{gap:.5rem}.gap-3{gap:.75rem}.gap-4{gap:1rem}.gap-5{gap:1.25rem}.gap-6{gap:1.5rem}
+.grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.relative{position:relative}.overflow-hidden{overflow:hidden}.overflow-x-auto{overflow-x:auto}.min-w-0{min-width:0}.shrink-0{flex-shrink:0}.w-full{width:100%}.h-auto{height:auto}.ml-auto{margin-left:auto}.mx-auto{margin-left:auto;margin-right:auto}
+.max-w-xl{max-width:36rem}.max-w-2xl{max-width:42rem}.max-w-3xl{max-width:48rem}.max-w-6xl{max-width:72rem}
+.p-2{padding:.5rem}.p-3{padding:.75rem}.p-4{padding:1rem}.p-5{padding:1.25rem}.p-6{padding:1.5rem}.px-8{padding-left:2rem;padding-right:2rem}.py-1{padding-top:.25rem;padding-bottom:.25rem}.py-4{padding-top:1rem;padding-bottom:1rem}.py-5{padding-top:1.25rem;padding-bottom:1.25rem}.py-6{padding-top:1.5rem;padding-bottom:1.5rem}.py-8{padding-top:2rem;padding-bottom:2rem}.py-10{padding-top:2.5rem;padding-bottom:2.5rem}.pt-1{padding-top:.25rem}.pl-5{padding-left:1.25rem}
+.mt-1{margin-top:.25rem}.mt-2{margin-top:.5rem}.mt-3{margin-top:.75rem}.mt-4{margin-top:1rem}.mt-5{margin-top:1.25rem}.mt-6{margin-top:1.5rem}.mt-8{margin-top:2rem}.mb-1{margin-bottom:.25rem}.mb-2{margin-bottom:.5rem}.mb-3{margin-bottom:.75rem}.mb-4{margin-bottom:1rem}.mb-5{margin-bottom:1.25rem}.mb-6{margin-bottom:1.5rem}.my-3{margin-top:.75rem;margin-bottom:.75rem}.m-0{margin:0}
+.text-xs{font-size:.75rem}.text-sm{font-size:.875rem}.text-base{font-size:1rem}.text-lg{font-size:1.125rem}.text-xl{font-size:1.25rem}.text-2xl{font-size:1.5rem}.text-3xl{font-size:1.875rem}.text-4xl{font-size:2.25rem}.text-5xl{font-size:3rem}.text-6xl{font-size:3.75rem}
+.font-semibold{font-weight:600}.font-bold{font-weight:700}.font-extrabold{font-weight:800}.font-mono{font-family:ui-monospace,monospace}.italic{font-style:italic}.underline{text-decoration:underline}.uppercase{text-transform:uppercase}.tracking-wide{letter-spacing:.025em}.tracking-widest{letter-spacing:.1em}.leading-tight{line-height:1.25}.leading-relaxed{line-height:1.625}
+.text-center{text-align:center}.text-left{text-align:left}.text-right{text-align:right}.truncate{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.opacity-60{opacity:.6}.opacity-70{opacity:.7}.opacity-75{opacity:.75}.opacity-80{opacity:.8}.opacity-95{opacity:.95}
+.bg-white{background:#fff}.border{border:1px solid #e5e7eb}.border-4{border-width:4px;border-style:solid}.border-t-2{border-top:2px solid}.rounded-xl{border-radius:.75rem}.rounded-2xl{border-radius:1rem}.rounded-lg{border-radius:.5rem}.shadow-lg{box-shadow:0 10px 15px -3px rgba(0,0,0,.15)}.list-decimal{list-style:decimal}.cursor-pointer{cursor:pointer}
+@media(min-width:640px){.sm\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}.sm\:grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}.sm\:grid-cols-5{grid-template-columns:repeat(5,minmax(0,1fr))}.sm\:p-6{padding:1.5rem}.sm\:p-7{padding:1.75rem}.sm\:p-8{padding:2rem}.sm\:text-2xl{font-size:1.5rem}.sm\:text-3xl{font-size:1.875rem}.sm\:text-5xl{font-size:3rem}.sm\:text-lg{font-size:1.125rem}.sm\:py-12{padding-top:3rem;padding-bottom:3rem}}
+@media(min-width:768px){.md\:grid-cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(min-width:1024px){.lg\:grid-cols-5{grid-template-columns:repeat(5,minmax(0,1fr))}.lg\:col-span-2{grid-column:span 2/span 2}.lg\:col-span-3{grid-column:span 3/span 3}}
+@media print{
+ body{background:#fff !important}
+ body *{visibility:hidden}
+ #pasaporte,#pasaporte *{visibility:visible}
+ #pasaporte{position:absolute;left:0;top:0;width:100%;box-shadow:none !important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ .no-print{display:none !important}
+}
+</style>
+<script id="cfg">window.ISLA_CONFIG={"modo":null,"fb":"https://geoaventura-f6b79-default-rtdb.firebaseio.com"};</script>
+</head>
+<body class="atm-0">
+<div id="app"></div>
+<script id="main">
+(function(){
+'use strict';
+/* ====================== CONFIGURACIÓN Y UTILIDADES ====================== */
+const SNAP='<!DOCTYPE html>\n'+document.documentElement.outerHTML;
+const CFG=window.ISLA_CONFIG||{modo:null,fb:''};
+const QS=new URLSearchParams(location.search);
+const MODO=CFG.modo?CFG.modo:(QS.get('docente')==='1'?'docente':'alumno');
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}},del(k){try{localStorage.removeItem(k);}catch(e){}}};
+function normFb(u){u=(u||'').trim();if(!u)return '';if(!/^https?:\/\//i.test(u))u='https://'+u;return u.replace(/\/+$/,'');}
+let FB=normFb(QS.get('fb'))||normFb(CFG.fb)||normFb(LS.get('isla_fb',''));
+if(QS.get('fb'))LS.set('isla_fb',FB);
+const bc=('BroadcastChannel' in window)?new BroadcastChannel('isla_poligono'):null;
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let UID=0;
+const r1=n=>Math.round(n*10)/10;
+function hash(str){let h=1779033703^str.length;for(let i=0;i<str.length;i++){h=Math.imul(h^str.charCodeAt(i),3432918353);h=h<<13|h>>>19;}return h>>>0;}
+function rng(seed){let a=seed>>>0;return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function barajar(arr,seed){const r=rng(seed),a=arr.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function fmtT(ms){if(!ms||ms<0)ms=0;const s=Math.floor(ms/1000),h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;const p=n=>String(n).padStart(2,'0');return h?h+':'+p(m)+':'+p(x):p(m)+':'+p(x);}
+function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2600);}
+function descargar(nombre,contenido,tipo){const b=new Blob([contenido],{type:tipo||'text/html;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=nombre;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);}
+
+/* ====================== ICONOS: AVATARES E INSIGNIAS ====================== */
+const AVATARES={
+ navegante:{n:'Navegante',d:'Lee el viento, las mareas y las estrellas.',c:'#0e7490'},
+ arquitecto:{n:'Arquitecto',d:'Diseña refugios firmes con regla y compás.',c:'#b45309'},
+ cartografo:{n:'Cartógrafo',d:'Mide, traza y dibuja cada rincón de la isla.',c:'#15803d'},
+ ingeniero:{n:'Ingeniero',d:'Calcula y construye máquinas para sobrevivir.',c:'#7c3aed'}
+};
+function avatarIcon(k,c){
+ if(k==='navegante'){let s=`<circle cx="12" cy="12" r="6.5" fill="none" stroke="${c}" stroke-width="2"/><circle cx="12" cy="12" r="2.2" fill="${c}"/>`;for(let i=0;i<8;i++){const a=i*Math.PI/4,x1=12+Math.cos(a)*2,y1=12+Math.sin(a)*2,x2=12+Math.cos(a)*10.5,y2=12+Math.sin(a)*10.5;s+=`<line x1="${r1(x1)}" y1="${r1(y1)}" x2="${r1(x2)}" y2="${r1(y2)}" stroke="${c}" stroke-width="1.8" stroke-linecap="round"/>`;}return s;}
+ if(k==='arquitecto')return `<circle cx="12" cy="4" r="2.2" fill="${c}"/><path d="M12 5.5 L6 21 M12 5.5 L18 21" stroke="${c}" stroke-width="2.3" stroke-linecap="round" fill="none"/><path d="M7.8 15 Q12 17.5 16.2 15" stroke="${c}" fill="none" stroke-width="1.6"/>`;
+ if(k==='cartografo')return `<path d="M3 6 L9 4 L15 6 L21 4 L21 18 L15 20 L9 18 L3 20 Z" fill="#fff" stroke="${c}" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 4 V18 M15 6 V20" stroke="${c}" stroke-width="1.3"/><path d="M5 14 l2-3 2 2 3-4 2 3" stroke="#e11d48" fill="none" stroke-width="1.5" stroke-dasharray="2 1.5"/>`;
+ return `<circle cx="12" cy="12" r="8" fill="none" stroke="${c}" stroke-width="3.6" stroke-dasharray="3.1 3.2"/><circle cx="12" cy="12" r="6" fill="none" stroke="${c}" stroke-width="2.2"/><circle cx="12" cy="12" r="2" fill="${c}"/>`;
+}
+function avatarSVG(k,size){const a=AVATARES[k]||AVATARES.navegante;return `<svg viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true">${avatarIcon(k,a.c)}</svg>`;}
+const INS=[{c1:'#fdba74',c2:'#c2410c'},{c1:'#86efac',c2:'#15803d'},{c1:'#7dd3fc',c2:'#0369a1'},{c1:'#f0abfc',c2:'#7e22ce'}];
+const INS_ICON=[
+ `<path d="M50 20 L50 62 L29 62 Z" fill="#fff"/><path d="M54 27 L54 62 L70 62 Z" fill="#ffedd5"/><path d="M27 66 L73 66 L66 74 L34 74 Z" fill="#7c2d12"/><path d="M24 79 q6-4 12 0 t12 0 t12 0 t12 0" stroke="#fff" stroke-width="2" fill="none"/>`,
+ `<path d="M25 68 L50 27 L75 68 Z" fill="#fff"/><path d="M50 27 L42 68 L58 68 Z" fill="#166534" opacity=".55"/><path d="M33 24 q3 5 0 8 q-3-3 0-8z M68 20 q3 5 0 8 q-3-3 0-8z M74 36 q3 5 0 8 q-3-3 0-8z" fill="#e0f2fe"/>`,
+ `<path d="M50 19 C62 37 70 47 70 57 A20 20 0 0 1 30 57 C30 47 38 37 50 19 Z" fill="#fff"/><path d="M39 57 a11 11 0 0 0 11 11" stroke="#38bdf8" stroke-width="3.5" fill="none" stroke-linecap="round"/>`,
+ `<path d="M43 72 L46.5 35 L53.5 35 L57 72 Z" fill="#fff"/><path d="M45 50 L55 50 M44.3 60 L55.7 60" stroke="#7e22ce" stroke-width="2"/><rect x="42.5" y="25" width="15" height="10" rx="2" fill="#fde047"/><path d="M59 29 L77 21 M59 30.5 L79 30.5 M59 32 L77 40 M41 29 L23 21 M41 30.5 L21 30.5 M41 32 L23 40" stroke="#fde047" stroke-width="2.6" stroke-linecap="round"/>`
+];
+function insignia(i,on,size,nueva){const c=INS[i],u='ins'+(++UID);let st='';for(let k=0;k<12;k++){const a=k*Math.PI/6;st+=`<circle cx="${r1(50+Math.cos(a)*36.5)}" cy="${r1(46+Math.sin(a)*36.5)}" r="1.6" fill="#b45309"/>`;}
+ return `<svg viewBox="0 0 100 112" width="${size||80}" class="insignia ${on?'':'bloqueada'} ${nueva?'nueva':''}" aria-label="Insignia ${DIAS[i].insignia}"><defs><radialGradient id="${u}" cx=".35" cy=".3" r=".8"><stop offset="0" stop-color="${c.c1}"/><stop offset="1" stop-color="${c.c2}"/></radialGradient></defs><path d="M30 76 L20 108 L35 100 L43 111 L51 80 Z" fill="#b91c1c"/><path d="M70 76 L80 108 L65 100 L57 111 L49 80 Z" fill="#dc2626"/><circle cx="50" cy="46" r="42" fill="#fde68a" stroke="#b45309" stroke-width="3"/>${st}<circle cx="50" cy="46" r="32" fill="url(#${u})"/><g transform="translate(0,-2)">${INS_ICON[i]}</g></svg>`;}
+
+/* ====================== HERRAMIENTAS SVG ====================== */
+function cota(x1,y1,x2,y2,t,o){o=o||{};const off=o.off==null?14:o.off,col=o.c||'#9a3412',halo=o.h||'#fff';
+ const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L,nx=-uy,ny=ux;
+ const ax=x1+nx*off,ay=y1+ny*off,bx=x2+nx*off,by=y2+ny*off;const sg=off>=0?1:-1;const lab=o.lab==null?13*sg:o.lab;
+ const lx=(ax+bx)/2+nx*lab,ly=(ay+by)/2+ny*lab;
+ const ar=(px,py,sx,sy)=>`<polygon points="${r1(px)},${r1(py)} ${r1(px+sx*8+nx*3.5)},${r1(py+sy*8+ny*3.5)} ${r1(px+sx*8-nx*3.5)},${r1(py+sy*8-ny*3.5)}" fill="${col}"/>`;
+ let s='';
+ if(off!==0)s+=`<line x1="${x1}" y1="${y1}" x2="${r1(ax+nx*sg*4)}" y2="${r1(ay+ny*sg*4)}" stroke="${col}" stroke-width="1" opacity=".55"/><line x1="${x2}" y1="${y2}" x2="${r1(bx+nx*sg*4)}" y2="${r1(by+ny*sg*4)}" stroke="${col}" stroke-width="1" opacity=".55"/>`;
+ s+=`<line x1="${r1(ax)}" y1="${r1(ay)}" x2="${r1(bx)}" y2="${r1(by)}" stroke="${col}" stroke-width="1.7" ${o.dash?'stroke-dasharray="5 4"':''}/>`+(o.noArrow?'':ar(ax,ay,ux,uy)+ar(bx,by,-ux,-uy));
+ s+=`<text x="${r1(lx)}" y="${r1(ly)}" class="cota-txt ${o.dato?'dato':''}" fill="${col}" stroke="${halo}">${t}</text>`;
+ return `<g>${s}</g>`;}
+const NOCHE={c:'#fde68a',h:'#0b1d3a'};
+function cn(x1,y1,x2,y2,t,o){return cota(x1,y1,x2,y2,t,Object.assign({},NOCHE,o||{}));}
+function txt(x,y,t,o){o=o||{};return `<text x="${x}" y="${y}" class="cota-txt ${o.dato?'dato':''}" fill="${o.c||'#9a3412'}" stroke="${o.h||'#fff'}" style="font-size:${o.fs||14}px">${t}</text>`;}
+function vert(x,y,hueco){return `<circle cx="${x}" cy="${y}" r="4.5" class="dato" fill="${hueco?'#fff':'#7c2d12'}" stroke="#7c2d12" stroke-width="2"/>`;}
+function leyendaCuerpo(y){return `<g transform="translate(14,${y})"><rect width="372" height="22" rx="8" fill="#fff" opacity=".85"/><line x1="10" y1="11" x2="34" y2="11" stroke="#7c2d12" stroke-width="2.2"/><text x="40" y="15" font-size="11" font-weight="700" fill="#5c3a1a" font-family="Nunito">arista visible</text><line x1="128" y1="11" x2="152" y2="11" stroke="#7c2d12" stroke-width="1.6" stroke-dasharray="5 4"/><text x="158" y="15" font-size="11" font-weight="700" fill="#5c3a1a" font-family="Nunito">arista oculta</text><circle cx="258" cy="11" r="4.5" fill="#7c2d12"/><text x="268" y="15" font-size="11" font-weight="700" fill="#5c3a1a" font-family="Nunito">vértice (○ oculto)</text></g>`;}
+const ESTRELLAS=(()=>{const r=rng(7);let s='';for(let i=0;i<45;i++){s+=`<circle cx="${r1(r()*400)}" cy="${r1(r()*170)}" r="${r1(.5+r()*1.3)}" fill="#fff" opacity="${r1(.4+r()*.6)}"/>`;}return s;})();
+const LLUVIA=(()=>{let s='';for(let i=0;i<46;i++){const x=(i*37)%410,y=(i*53)%215;s+=`<line x1="${x}" y1="${y}" x2="${x-6}" y2="${y+14}" stroke="#e0f2fe" stroke-width="1.3" opacity=".55"/>`;}return s;})();
+function arbol(x){return `<rect x="${x-6}" y="70" width="12" height="160" fill="#5b3a1a"/><circle cx="${x}" cy="62" r="30" fill="#2f6b2f"/><circle cx="${x-18}" cy="82" r="20" fill="#3d7d3a"/><circle cx="${x+18}" cy="82" r="20" fill="#3d7d3a"/>`;}
+function fondo(t,u){
+ const cieloAm=`<defs><linearGradient id="${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffa985"/><stop offset=".7" stop-color="#ffe6c4"/></linearGradient></defs><rect width="400" height="260" fill="url(#${u})"/>`;
+ const ola=y=>`<path d="M0 ${y} q20-6 40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0 t40 0" fill="none" stroke="#c9eef9" stroke-width="2" opacity=".8"/>`;
+ if(t==='playa')return cieloAm+`<circle cx="338" cy="62" r="40" fill="#ffd166" opacity=".25"/><circle cx="338" cy="62" r="27" fill="#ffd166"/><path d="M20 70 q10-8 20 0 q10-8 20 0" stroke="#7c2d12" stroke-width="1.6" fill="none" opacity=".5"/><rect y="150" width="400" height="60" fill="#3fa7c9"/>${ola(162)}${ola(182)}<path d="M0 205 C90 196 170 204 250 198 C310 194 360 200 400 197 L400 260 L0 260 Z" fill="#f3d9a4"/>`;
+ if(t==='arena')return cieloAm+`<circle cx="352" cy="14" r="11" fill="#ffd166"/><rect y="24" width="400" height="36" fill="#3fa7c9"/>${ola(34)}<path d="M0 58 C100 50 200 62 300 54 C340 52 370 56 400 54 L400 260 L0 260 Z" fill="#f6dfae"/><g fill="#dfc187">${[[30,90],[70,240],[350,100],[360,230],[30,180],[380,160],[90,140],[320,250]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="2"/>`).join('')}</g><path d="M28 225 l8-5 8 5 M340 120 l6-6 6 6" stroke="#e7a8a8" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+ if(t==='claro')return `<defs><linearGradient id="${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4b5a6d"/><stop offset="1" stop-color="#a9b6c0"/></linearGradient></defs><rect width="400" height="260" fill="url(#${u})"/><g fill="#3a4757" opacity=".85"><ellipse cx="120" cy="22" rx="80" ry="22"/><ellipse cx="260" cy="16" rx="90" ry="24"/><ellipse cx="370" cy="28" rx="60" ry="18"/></g><path d="M300 30 L290 55 L300 55 L288 82" stroke="#fef08a" stroke-width="2.5" fill="none"/>${LLUVIA}<path d="M0 222 C100 214 300 228 400 218 L400 260 L0 260 Z" fill="#4f7f3a"/>${arbol(40)}${arbol(360)}`;
+ if(t==='suelo'){let s=`<rect width="400" height="260" fill="#6aa84f"/>`;const r=rng(3);for(let i=0;i<70;i++){const x=r()*400,y=r()*260;s+=`<path d="M${r1(x)} ${r1(y)} l2 -6 l2 6" stroke="#558c3d" stroke-width="1.3" fill="none"/>`;}return s+`<circle cx="25" cy="25" r="22" fill="#3d7d3a"/><circle cx="380" cy="240" r="26" fill="#3d7d3a"/><circle cx="385" cy="20" r="16" fill="#3d7d3a"/>`+LLUVIA.replace(/opacity=".55"/g,'opacity=".3"');}
+ if(t==='cascada')return `<defs><linearGradient id="${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9fdcf0"/><stop offset="1" stop-color="#e8f8fc"/></linearGradient></defs><rect width="400" height="260" fill="url(#${u})"/><path d="M0 0 L72 0 L80 60 L66 120 L84 200 L64 260 L0 260 Z" fill="#7d8b99"/><path d="M22 0 h34 v232 h-34z" fill="#c7ecfb"/><path d="M28 0 V232 M39 0 V232 M50 0 V232" stroke="#fff" stroke-width="2.5" stroke-dasharray="14 10" class="agua-cae"/><ellipse cx="60" cy="238" rx="96" ry="16" fill="#4fb3d9"/><path d="M150 235 C220 228 320 236 400 230 L400 260 L130 260 Z" fill="#7bb661"/><path d="M330 228 q4-14 8 0 M345 230 q4-18 8 0" stroke="#3f7d2c" stroke-width="3" fill="none"/>`;
+ if(t==='pico')return `<defs><linearGradient id="${u}" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1535"/><stop offset="1" stop-color="#2d3a6e"/></linearGradient></defs><rect width="400" height="260" fill="url(#${u})"/>${ESTRELLAS}<circle cx="352" cy="38" r="16" fill="#fef3c7"/><circle cx="359" cy="33" r="14" fill="#16224a"/><path d="M0 232 L70 196 L130 214 L210 180 L290 210 L360 188 L400 200 L400 260 L0 260 Z" fill="#141f3d"/>`;
+ return '';
+}
+function escena(t,contenido,alt){const u='g'+(++UID);return `<svg viewBox="0 0 400 260" class="escena" role="img" aria-label="${esc(alt||'Ilustración del reto')}" xmlns="http://www.w3.org/2000/svg">${fondo(t,u)}${contenido}</svg>`;}
+function cilindro(cx,top,rx,ry,h,cuerpo,tapa,borde){return `<path d="M${cx-rx} ${top} L${cx-rx} ${top+h} A${rx} ${ry} 0 0 0 ${cx+rx} ${top+h} L${cx+rx} ${top} Z" fill="${cuerpo}" stroke="${borde}" stroke-width="2.5"/><path d="M${cx-rx} ${top+h} A${rx} ${ry} 0 0 1 ${cx+rx} ${top+h}" fill="none" stroke="${borde}" stroke-width="1.4" stroke-dasharray="5 4" opacity=".6"/><ellipse cx="${cx}" cy="${top}" rx="${rx}" ry="${ry}" fill="${tapa}" stroke="${borde}" stroke-width="2.5"/>`;}
+
+/* ====================== DATOS DEL JUEGO ====================== */
+const DIAS=[
+ {n:1,nombre:'Exploración',zona:'Playa del Naufragio',insignia:'Explorador de la Playa',meta:'Identificar y clasificar figuras y cuerpos geométricos',radio:'Amanece. El mar arrastró restos del naufragio a la orilla. Antes de construir, debes reconocer qué formas tienes a tu alcance.'},
+ {n:2,nombre:'Refugio contra la Tormenta',zona:'Claro del Refugio',insignia:'Constructor del Refugio',meta:'Calcular perímetro y área',radio:'Nubes negras se acercan desde el sur. Tienes pocas horas para levantar un refugio en el claro del bosque.'},
+ {n:3,nombre:'Reserva de Agua Potable',zona:'Cascada de Agua',insignia:'Guardián del Agua',meta:'Calcular el volumen de prismas y cilindros',radio:'Pasó la tormenta, pero el agua dulce escasea. Junto a la cascada podrás almacenar la reserva para los próximos días.'},
+ {n:4,nombre:'La Torre de Señales',zona:'Pico de la Torre',insignia:'Guardián del Faro',meta:'Resolver una situación integradora',radio:'Última noche en la isla. El helicóptero de rescate pasará cerca del pico: ¡hay que encender la Torre de Señales!'}
+];
+const DIAG=[
+ {p:'Quieres poner una cerca alrededor de un huerto. ¿Qué necesitas calcular?',o:['El perímetro','El área','El volumen'],ok:0,e:'El perímetro es la medida del BORDE o contorno de una figura (se mide en m). El área es la superficie que ocupa (m²) y el volumen es el espacio que ocupa un cuerpo (m³).'},
+ {p:'Una rueda mide 60 cm de diámetro. ¿Cuánto mide su radio?',o:['120 cm','30 cm','60 cm'],ok:1,e:'El diámetro atraviesa el círculo de lado a lado pasando por el centro; el radio va del centro al borde. Por eso el radio es la MITAD del diámetro: 60 ÷ 2 = 30 cm.'},
+ {p:'¿Cuál de estos es un cuerpo geométrico (tiene tres dimensiones)?',o:['Cuadrado','Círculo','Cubo'],ok:2,e:'Las figuras planas (2D) solo tienen largo y ancho: cuadrado, círculo, triángulo. Los cuerpos geométricos (3D) también tienen altura o profundidad: cubo, cilindro, pirámide.'}
+];
+const FORMULAS=[
+ ['Perímetro','',[['Cuadrado','P = 4 × l'],['Rectángulo','P = 2b + 2h'],['Triángulo','P = l₁ + l₂ + l₃'],['Circunferencia','C = π × d = 2 × π × r']]],
+ ['Área','',[['Cuadrado','A = l × l = l²'],['Rectángulo','A = b × h'],['Triángulo','A = (b × h) ÷ 2'],['Círculo','A = π × r²']]],
+ ['Volumen','',[['Cubo','V = l³'],['Prisma','V = A base × h'],['Prisma rectangular','V = l × a × h'],['Cilindro','V = π × r² × h']]],
+ ['Cuerpos y equivalencias','',[['Fórmula de Euler','C + V − A = 2'],['Radio y diámetro','r = d ÷ 2'],['Valor de π','π ≈ 3.14'],['Capacidad','1 dm³ = 1 L'],['Capacidad','1 m³ = 1,000 L']]]
+];
+
+/* 16 RETOS: 4 variantes por día */
+const RETOS=[
+/* ---------- DÍA 1 ---------- */
+[
+{titulo:'La vela del bote salvavidas',tipo:'playa',
+ historia:'Encontraste un bote salvavidas con su vela intacta. La Estación de Rescate necesita que describas la vela por radio.',
+ pregunta:'La vela triangular mide 4 m, 4 m y 2.5 m. Según la medida de sus lados, ¿qué tipo de triángulo es?',
+ formula:'Clasificación por lados',lupa:'Compara las tres medidas. Equilátero: 3 lados iguales · Isósceles: 2 lados iguales · Escaleno: ningún lado igual.',
+ svg:()=>`<path d="M112 196 L288 196 L264 228 L136 228 Z" fill="#8b5a2b" stroke="#5c3a1a" stroke-width="2.5"/><path d="M120 206 H280" stroke="#6b4423" stroke-width="2"/><line x1="200" y1="24" x2="200" y2="196" stroke="#5c3a1a" stroke-width="4"/><path d="M200 24 L224 30 L200 37 Z" fill="#ef4444"/><polygon points="200,45 150,190 250,190" fill="#fff7e6" stroke="#c2410c" stroke-width="3" stroke-linejoin="round"/><path d="M168 106 L183 102 M232 106 L217 102" stroke="#c2410c" stroke-width="2.5"/><path d="M171 113 L186 109 M229 113 L214 109" stroke="#c2410c" stroke-width="2.5"/>`+cota(150,190,200,45,'4 m',{off:-20,dato:true})+cota(200,45,250,190,'4 m',{off:-20,dato:true})+cota(150,190,250,190,'2.5 m',{off:-16,dato:true}),
+ opciones:[
+  {t:'Triángulo isósceles',ok:true},
+  {t:'Triángulo equilátero',tag:'Confundió equilátero con isósceles',fb:'Un triángulo equilátero tiene sus TRES lados iguales. Aquí solo dos lados miden 4 m; el tercero mide 2.5 m.'},
+  {t:'Triángulo escaleno',tag:'Confundió escaleno con isósceles',fb:'El escaleno tiene sus tres lados DIFERENTES. Observa las marcas: dos lados miden lo mismo (4 m).'},
+  {t:'Triángulo rectángulo',tag:'Clasificó por ángulos en lugar de por lados',fb:'«Rectángulo» es una clasificación por ÁNGULOS (tiene un ángulo de 90°). La pregunta pide clasificar según sus LADOS.'}]},
+{titulo:'La caja de suministros',tipo:'arena',
+ historia:'Las olas trajeron una caja de madera con suministros. Debes registrarla en la bitácora de la expedición.',
+ pregunta:'La caja tiene forma de prisma rectangular. ¿Cuántas caras, vértices y aristas tiene?',
+ formula:'Fórmula de Euler: C + V − A = 2',lupa:'Cuenta también lo que no se ve (líneas punteadas y vértice hueco). Vértices = esquinas; aristas = bordes donde se unen dos caras.',
+ svg:()=>`<polygon points="118,220 278,220 328,185 168,185" fill="#000" opacity=".1"/><polygon points="110,120 270,120 320,85 160,85" fill="#e9c46a" stroke="#7c4a1e" stroke-width="2.4" stroke-linejoin="round"/><polygon points="270,120 320,85 320,175 270,210" fill="#b07d4f" stroke="#7c4a1e" stroke-width="2.4" stroke-linejoin="round"/><rect x="110" y="120" width="160" height="90" fill="#d4a373" stroke="#7c4a1e" stroke-width="2.4"/><path d="M110 150 H270 M110 180 H270" stroke="#a9744a" stroke-width="1.2"/><text x="190" y="170" text-anchor="middle" font-weight="900" font-size="15" fill="#7c2d12" font-family="Nunito">SUMINISTROS</text><path d="M160 85 L160 175 L320 175 M160 175 L110 210" stroke="#7c2d12" stroke-width="1.6" stroke-dasharray="5 4" fill="none"/>`+[[110,120],[270,120],[270,210],[110,210],[160,85],[320,85],[320,175]].map(p=>vert(p[0],p[1])).join('')+vert(160,175,true)+leyendaCuerpo(232),
+ opciones:[
+  {t:'6 caras, 8 vértices y 12 aristas',ok:true},
+  {t:'6 caras, 12 vértices y 8 aristas',tag:'Intercambió vértices y aristas',fb:'Intercambiaste vértices y aristas. Los vértices son las ESQUINAS (puntos) y las aristas son los BORDES (segmentos) donde se unen dos caras.'},
+  {t:'3 caras, 7 vértices y 9 aristas',tag:'Solo contó elementos visibles',fb:'Contaste solo lo que se ve. Un cuerpo también tiene caras, vértices y aristas ocultas (atrás, abajo y a la izquierda): fíjate en las líneas punteadas.'},
+  {t:'4 caras, 8 vértices y 12 aristas',tag:'Olvidó contar las bases',fb:'Contaste solo las caras laterales. Recuerda sumar las dos bases (arriba y abajo): 4 + 2 = 6 caras.'}]},
+{titulo:'El mensaje en la arena',tipo:'arena',
+ historia:'Un náufrago anterior dibujó en la arena un desarrollo plano: el molde de un recipiente que construyó para sobrevivir.',
+ pregunta:'El desarrollo plano tiene un rectángulo y dos círculos iguales. Si lo recortas y lo armas, ¿qué cuerpo geométrico se forma?',
+ formula:'Desarrollo plano = el cuerpo «desdoblado»',lupa:'Las dos figuras iguales son las BASES del cuerpo. El rectángulo se enrolla para formar la cara lateral curva.',
+ svg:()=>`<g stroke="#8a5a2b" stroke-width="2.6" fill="none" stroke-linecap="round"><rect x="131" y="105" width="138" height="80" fill="#cfe9f7" class="dato"/><circle cx="200" cy="83" r="22" fill="#ffd9a8" class="dato"/><circle cx="200" cy="207" r="22" fill="#ffd9a8" class="dato"/></g><path d="M131 105 H269 M131 185 H269" stroke="#1e6091" stroke-width="1.5" stroke-dasharray="4 4"/><path d="M296 120 q20 0 20 25 q0 25 -20 25" stroke="#1e6091" stroke-width="2" fill="none" stroke-dasharray="4 3"/><polygon points="296,170 304,164 304,176" fill="#1e6091"/><text x="330" y="150" font-size="12" font-weight="800" fill="#1e6091" font-family="Nunito">se</text><text x="330" y="164" font-size="12" font-weight="800" fill="#1e6091" font-family="Nunito">enrolla</text><line x1="60" y1="120" x2="100" y2="225" stroke="#6b4423" stroke-width="5" stroke-linecap="round"/><path d="M45 240 q5-8 10 0 M70 250 q5-8 10 0" stroke="#c9a46a" stroke-width="3" fill="none"/>`,
+ opciones:[
+  {t:'Cilindro',ok:true},
+  {t:'Cono',tag:'Confundió cono con cilindro',fb:'El cono tiene UNA sola base circular y su cara lateral es un sector circular (como una rebanada de pizza), no un rectángulo.'},
+  {t:'Prisma rectangular',tag:'Confundió bases circulares con poligonales',fb:'Un prisma tiene bases que son POLÍGONOS (con lados rectos). Aquí las bases son círculos.'},
+  {t:'Esfera',tag:'Confundió esfera con cilindro',fb:'La esfera no tiene caras planas y no puede formarse con un desarrollo plano. Aquí hay dos bases planas circulares.'}]},
+{titulo:'La pirámide de arena',tipo:'arena',
+ historia:'Para que los aviones vean la playa, los náufragos construyeron una pirámide de arena mojada con base cuadrada.',
+ pregunta:'¿Cuántas caras, vértices y aristas tiene una pirámide de base cuadrada?',
+ formula:'Fórmula de Euler: C + V − A = 2',lupa:'Caras: las laterales triangulares + la base. Vértices: los de la base + la cúspide (punta). Aristas: las de la base + las que suben a la cúspide.',
+ svg:()=>`<polygon points="128,214 268,214 313,177 173,177" fill="#000" opacity=".1"/><polygon points="212,60 120,205 260,205" fill="#f4a261" stroke="#7c2d12" stroke-width="2.4" stroke-linejoin="round"/><polygon points="212,60 260,205 305,168" fill="#d9703f" stroke="#7c2d12" stroke-width="2.4" stroke-linejoin="round"/><path d="M165 168 L120 205 M165 168 L305 168 M165 168 L212 60" stroke="#7c2d12" stroke-width="1.6" stroke-dasharray="5 4" fill="none"/><path d="M150 180 q10-6 20 0 M200 150 q8-5 16 0" stroke="#c2703f" stroke-width="1.5" fill="none" opacity=".7"/>`+[[212,60],[120,205],[260,205],[305,168]].map(p=>vert(p[0],p[1])).join('')+vert(165,168,true)+`<path d="M330 215 l10-8 10 8 z" fill="#fca5a5"/>`+leyendaCuerpo(232),
+ opciones:[
+  {t:'5 caras, 5 vértices y 8 aristas',ok:true},
+  {t:'4 caras, 4 vértices y 6 aristas',tag:'Confundió con pirámide triangular',fb:'Esas son las características de una pirámide de base TRIANGULAR. Aquí la base es un cuadrado: 4 caras laterales + 1 base = 5 caras.'},
+  {t:'5 caras, 4 vértices y 8 aristas',tag:'Olvidó el vértice de la cúspide',fb:'Olvidaste el vértice de la cúspide (la punta). Son 4 vértices en la base + 1 arriba = 5 vértices.'},
+  {t:'6 caras, 8 vértices y 12 aristas',tag:'Confundió pirámide con prisma',fb:'Esas son las características de un PRISMA rectangular (como una caja). La pirámide termina en un solo vértice: la cúspide.'}]}
+],
+/* ---------- DÍA 2 ---------- */
+[
+{titulo:'La lona del techo',tipo:'claro',
+ historia:'Rescataste una lona rectangular del naufragio. Antes de subirla al techo del refugio, necesitas saber cuánta superficie cubre.',
+ pregunta:'La lona mide 4 m de largo y 3 m de ancho. ¿Cuál es su área?',
+ formula:'A = b × h',lupa:'La superficie que cubre la lona es su ÁREA. Multiplica la base por la altura.',
+ svg:()=>`<path d="M110 70 L48 84 M110 205 L48 196 M290 70 L352 84 M290 205 L352 196" stroke="#4a3426" stroke-width="2"/><rect x="110" y="70" width="180" height="135" fill="#f59e0b" stroke="#92400e" stroke-width="2.6"/><path d="M146 70 V205 M182 70 V205 M218 70 V205 M254 70 V205" stroke="#fbbf24" stroke-width="7" opacity=".6"/><path d="M140 100 q3 5 0 7 q-3-2 0-7z M240 150 q3 5 0 7 q-3-2 0-7z M200 115 q3 5 0 7 q-3-2 0-7z" fill="#dbeafe"/>`+cota(110,205,290,205,'4 m',{off:15,dato:true})+cota(290,70,290,205,'3 m',{off:-18,dato:true}),
+ opciones:[
+  {t:'12 m²',ok:true},
+  {t:'14 m',tag:'Confundió área con perímetro',fb:'Calculaste el PERÍMETRO (4 + 3 + 4 + 3 = 14 m), que es la medida del borde. La superficie que cubre la lona es el ÁREA: b × h.'},
+  {t:'7 m²',tag:'Sumó en lugar de multiplicar',fb:'Sumaste la base y la altura (4 + 3). El área de un rectángulo se obtiene MULTIPLICANDO: b × h.'},
+  {t:'24 m²',tag:'Multiplicó de más (×2)',fb:'Multiplicaste de más (4 × 3 × 2). El área del rectángulo es solo b × h; no se multiplica por 2.'}]},
+{titulo:'La cerca del campamento',tipo:'suelo',
+ historia:'El viento de la tormenta sopla fuerte. Vista desde arriba, la zona del campamento es un rectángulo que vas a rodear con cuerda y estacas.',
+ pregunta:'El campamento mide 6 m de largo y 4 m de ancho. ¿Cuántos metros de cuerda necesitas para rodearlo completo?',
+ formula:'P = 2b + 2h',lupa:'La cuerda va por el BORDE: necesitas el perímetro. Suma los 4 lados del rectángulo.',
+ svg:()=>`<rect x="90" y="62" width="220" height="146" fill="#7fbf5f" stroke="#6b3f17" stroke-width="3.2" stroke-dasharray="9 5"/>`+[[90,62],[310,62],[310,208],[90,208]].map(p=>`<rect x="${p[0]-5}" y="${p[1]-5}" width="10" height="10" rx="2" fill="#5b3a1a"/>`).join('')+`<rect x="140" y="98" width="70" height="52" fill="#f97316" stroke="#9a3412" stroke-width="2"/><path d="M140 124 H210" stroke="#9a3412" stroke-width="2"/><g transform="translate(255,165)"><circle r="16" fill="#78716c"/><circle r="10" fill="#f97316"/><circle r="5" fill="#fde047"/></g><text x="200" y="196" class="cota-txt" fill="#4a2c12" stroke="#c4e3b4" style="font-size:12px">cuerda</text>`+cota(90,62,310,62,'6 m',{off:-15,dato:true,c:'#4a2c12'})+cota(90,62,90,208,'4 m',{off:15,dato:true,c:'#4a2c12'}),
+ opciones:[
+  {t:'20 m',ok:true},
+  {t:'24 m²',tag:'Confundió perímetro con área',fb:'Calculaste el ÁREA (6 × 4). La cuerda va por el borde, así que necesitas el PERÍMETRO: la suma de todos los lados.'},
+  {t:'10 m',tag:'Sumó solo dos lados',fb:'Sumaste solo dos lados (6 + 4). El rectángulo tiene 4 lados: 6 + 4 + 6 + 4.'},
+  {t:'48 m',tag:'Multiplicó las medidas entre sí',fb:'Multiplicaste 6 × 4 × 2. El perímetro se obtiene SUMANDO lados: 2 × (6 + 4) = 20; no se multiplican las medidas entre sí.'}]},
+{titulo:'La lona entre los árboles',tipo:'claro',
+ historia:'Para el techo del refugio colgarás una lona triangular entre dos árboles. Tienes que cortar la cantidad exacta de tela.',
+ pregunta:'Observa las medidas del triángulo. ¿Cuántos metros cuadrados de lona se necesitan?',
+ formula:'A = (b × h) ÷ 2',lupa:'Usa la BASE (5 m) y la ALTURA (línea punteada, 3 m). La altura es perpendicular a la base; el lado inclinado no es la altura.',
+ svg:()=>`<path d="M205 102 L48 92 M205 102 L352 92" stroke="#4a3426" stroke-width="2"/><polygon points="110,210 290,210 205,102" fill="#fb923c" stroke="#9a3412" stroke-width="2.6" stroke-linejoin="round"/><line x1="205" y1="102" x2="205" y2="210" stroke="#1e3a8a" stroke-width="2" stroke-dasharray="6 4" class="dato"/><path d="M205 200 H215 V210" stroke="#1e3a8a" stroke-width="1.8" fill="none"/>`+txt(222,160,'3 m',{dato:true,c:'#1e3a8a'})+cota(110,210,290,210,'5 m',{off:13,dato:true})+cota(110,210,205,102,'4 m',{off:-16})+cota(290,210,205,102,'3.8 m',{off:16}),
+ opciones:[
+  {t:'7.5 m²',ok:true},
+  {t:'15 m²',tag:'Olvidó dividir entre 2 (triángulo)',fb:'Multiplicaste base × altura pero olvidaste dividir entre 2. Un triángulo es la mitad de un rectángulo: A = (5 × 3) ÷ 2.'},
+  {t:'10 m²',tag:'Usó el lado inclinado como altura',fb:'Usaste el lado inclinado (4 m) como si fuera la altura. La altura es la línea punteada PERPENDICULAR a la base: 3 m.'},
+  {t:'12.8 m',tag:'Confundió área con perímetro',fb:'Sumaste los tres lados (5 + 4 + 3.8): eso es el PERÍMETRO. Para saber cuánta tela necesitas debes calcular el ÁREA.'}]},
+{titulo:'El círculo de la fogata',tipo:'suelo',
+ historia:'Para que la fogata no se apague con el viento, la rodearás con una hilera de piedras pegadas una a otra.',
+ pregunta:'La fogata es circular y mide 2 m de diámetro. ¿Cuánto mide su borde (circunferencia)? Usa π = 3.14.',
+ formula:'C = π × d   ó   C = 2 × π × r',lupa:'La hilera de piedras va en el BORDE. Si usas el radio, recuerda que r = d ÷ 2 = 1 m.',
+ svg:()=>{let s=`<circle cx="200" cy="132" r="88" fill="#000" opacity=".12"/><circle cx="200" cy="130" r="80" fill="#8a6440"/><circle cx="200" cy="130" r="70" fill="#6e4b2a"/>`;for(let i=0;i<20;i++){const a=i*Math.PI/10;s+=`<ellipse cx="${r1(200+Math.cos(a)*80)}" cy="${r1(130+Math.sin(a)*80)}" rx="9" ry="7" fill="#a8a29e" stroke="#57534e" stroke-width="1.5"/>`;}
+  s+=`<path d="M175 150 L225 120 M175 120 L225 150" stroke="#78350f" stroke-width="8" stroke-linecap="round"/><path d="M200 152 C180 140 186 118 196 106 C198 118 206 116 204 100 C220 116 222 140 200 152 Z" fill="#f97316"/><path d="M200 150 C190 142 194 128 200 122 C206 130 210 142 200 150 Z" fill="#fde047"/><line x1="120" y1="130" x2="280" y2="130" stroke="#fff" stroke-width="2.4" stroke-dasharray="6 4" class="dato"/><circle cx="120" cy="130" r="4" fill="#fff"/><circle cx="280" cy="130" r="4" fill="#fff"/><circle cx="200" cy="130" r="3.5" fill="#fff"/>`+txt(150,116,'d = 2 m',{dato:true,c:'#fff',h:'#4a2c12',fs:15})+txt(200,236,'centro de la fogata ●',{c:'#fff',h:'#3d6b2a',fs:11});return s;},
+ opciones:[
+  {t:'6.28 m',ok:true},
+  {t:'12.56 m',tag:'Usó el diámetro como radio',fb:'Usaste el diámetro (2 m) como si fuera el radio. El radio es la mitad: r = 1 m. Entonces C = 2 × 3.14 × 1 = 6.28 m (o C = 3.14 × 2).'},
+  {t:'3.14 m²',tag:'Calculó el área del círculo',fb:'Calculaste el ÁREA del círculo (π × r²). La hilera de piedras va en el borde: necesitas el perímetro del círculo (circunferencia).'},
+  {t:'3.14 m',tag:'Olvidó multiplicar por 2 (π × r)',fb:'Multiplicaste π por el radio, pero faltó multiplicar por 2. La fórmula es C = 2 × π × r, o bien C = π × d.'}]}
+],
+/* ---------- DÍA 3 ---------- */
+[
+{titulo:'El barril de lluvia',tipo:'cascada',
+ historia:'Colocaste un barril cilíndrico bajo una hoja enorme que funciona como canaleta para recolectar el agua de lluvia.',
+ pregunta:'El barril tiene 3 dm de radio y 10 dm de altura. ¿Cuántos litros de agua le caben? (π = 3.14; 1 dm³ = 1 L)',
+ formula:'V = π × r² × h',lupa:'Primero eleva el RADIO al cuadrado (3 × 3), multiplícalo por π y después por la altura.',
+ svg:()=>`<path d="M140 22 Q200 52 262 30" stroke="#15803d" stroke-width="9" fill="none" stroke-linecap="round"/><g class="gota-cae"><path d="M200 46 q4 7 0 10 q-4-3 0-10z" fill="#38bdf8"/></g>`+cilindro(200,75,70,18,140,'#9a5b2e','#5fb7e5','#5c3317')+`<path d="M130 120 A70 18 0 0 0 270 120 M130 172 A70 18 0 0 0 270 172" stroke="#4b5563" stroke-width="5" fill="none"/><circle cx="200" cy="75" r="3.5" fill="#0c4a6e"/>`+cota(200,75,270,75,'r = 3 dm',{off:0,lab:-11,dash:true,c:'#0c4a6e',dato:true})+cota(270,75,270,215,'10 dm',{off:-22,dato:true})+`<rect x="292" y="226" width="96" height="24" rx="8" fill="#fff" stroke="#0891b2"/>`+txt(340,238,'1 dm³ = 1 L',{c:'#0e7490',fs:12}),
+ opciones:[
+  {t:'282.6 L',ok:true},
+  {t:'1,130.4 L',tag:'Usó el diámetro en lugar del radio',fb:'Usaste 6 dm (el diámetro) en lugar del radio. En V = π × r² × h, r es el RADIO: 3 dm.'},
+  {t:'188.4 L',tag:'Calculó área lateral (2πrh)',fb:'Calculaste 2 × π × r × h: eso es el área de la cara lateral (como la «etiqueta» del barril), no el volumen. Usa V = π × r² × h.'},
+  {t:'94.2 L',tag:'No elevó el radio al cuadrado',fb:'Olvidaste elevar el radio al cuadrado: π × 3 × 10. Debe ser π × 3² × 10 = 3.14 × 9 × 10.'}]},
+{titulo:'El tanque junto a la cascada',tipo:'cascada',
+ historia:'Con tablas y resina construiste un tanque para guardar el agua que cae de la cascada.',
+ pregunta:'El tanque es un prisma rectangular de 2 m de largo, 1 m de ancho y 1.5 m de alto. ¿Cuál es su volumen?',
+ formula:'V = l × a × h',lupa:'El volumen mide el espacio interior: multiplica las TRES medidas (largo × ancho × alto).',
+ svg:()=>`<polygon points="100,100 260,100 310,65 150,65" fill="#e0f2fe" stroke="#075985" stroke-width="2.4" stroke-linejoin="round"/><polygon points="260,100 310,65 310,185 260,220" fill="#bae6fd" stroke="#075985" stroke-width="2.4" stroke-linejoin="round"/><polygon points="260,140 310,105 310,185 260,220" fill="#0ea5e9" opacity=".55"/><rect x="100" y="100" width="160" height="120" fill="#f0f9ff" stroke="#075985" stroke-width="2.4"/><rect x="100" y="140" width="160" height="80" fill="#38bdf8" opacity=".7"/><path d="M100 140 q20-5 40 0 t40 0 t40 0 t40 0" stroke="#e0f2fe" stroke-width="2" fill="none"/><path d="M150 65 V185 L100 220 M150 185 H310" stroke="#075985" stroke-width="1.5" stroke-dasharray="5 4" fill="none"/>`+cota(100,220,260,220,'2 m',{off:15,dato:true})+cota(100,100,100,220,'1.5 m',{off:15,dato:true})+cota(260,220,310,185,'1 m',{off:13,dato:true}),
+ opciones:[
+  {t:'3 m³',ok:true},
+  {t:'4.5 m³',tag:'Sumó en lugar de multiplicar',fb:'Sumaste las tres medidas (2 + 1 + 1.5). El volumen se obtiene MULTIPLICANDO: largo × ancho × alto.'},
+  {t:'13 m²',tag:'Calculó área total en lugar de volumen',fb:'Calculaste el área de todas las caras (la superficie). El volumen mide el ESPACIO interior y se expresa en unidades cúbicas (m³).'},
+  {t:'2 m³',tag:'Olvidó multiplicar por la altura',fb:'Calculaste solo el área de la base (2 × 1 = 2 m²) y olvidaste multiplicarla por la altura (1.5 m).'}]},
+{titulo:'El canal de bambú',tipo:'cascada',
+ historia:'Para llevar agua de la cascada al campamento armaste un canal de bambú con forma de prisma triangular.',
+ pregunta:'La base del canal es un triángulo de 0.6 m de ancho y 0.4 m de profundidad; el canal mide 3 m de largo. ¿Qué volumen de agua cabe en el canal lleno?',
+ formula:'V = A base × largo;  A base = (b × h) ÷ 2',lupa:'Primero calcula el área del triángulo de la base (no olvides ÷ 2) y después multiplícala por el largo del canal.',
+ svg:()=>`<path d="M170 120 L340 70 L290 140 L120 190 Z" fill="#b98b2f" stroke="#6b4f12" stroke-width="2.2" stroke-linejoin="round"/><path d="M153 143 L323 93 M137 167 L307 117" stroke="#8a6a1f" stroke-width="1.5" opacity=".7"/><path d="M240 70 L290 140" stroke="#6b4f12" stroke-width="1.6" stroke-dasharray="5 4"/><polygon points="70,120 170,120 340,70 240,70" fill="#7cc6ee" stroke="#0c4a6e" stroke-width="2.2" stroke-linejoin="round"/><polygon points="70,120 170,120 120,190" fill="#e2b65a" stroke="#6b4f12" stroke-width="2.4" stroke-linejoin="round"/><line x1="120" y1="120" x2="120" y2="190" stroke="#1e3a8a" stroke-width="2" stroke-dasharray="5 4" class="dato"/><path d="M120 128 H128 V120" stroke="#1e3a8a" stroke-width="1.6" fill="none"/>`+txt(146,160,'0.4 m',{dato:true,c:'#1e3a8a'})+cota(70,120,170,120,'0.6 m',{off:-13,dato:true})+cota(70,120,240,70,'3 m',{off:-16,dato:true})+`<path d="M350 40 q10 10 0 28" stroke="#38bdf8" stroke-width="5" fill="none" class="agua-cae" stroke-dasharray="6 4"/>`,
+ opciones:[
+  {t:'0.36 m³',ok:true},
+  {t:'0.72 m³',tag:'Olvidó dividir entre 2 (base triangular)',fb:'Olvidaste dividir entre 2 el área del triángulo de la base. A base = (0.6 × 0.4) ÷ 2 = 0.12 m²; después, 0.12 × 3.'},
+  {t:'0.12 m³',tag:'Solo calculó el área de la base',fb:'0.12 es el área de la base triangular (en m²). Falta multiplicarla por el largo del canal: 0.12 × 3.'},
+  {t:'4 m³',tag:'Sumó las medidas',fb:'Sumaste las medidas (0.6 + 0.4 + 3). El volumen de un prisma es el ÁREA DE LA BASE × el largo.'}]},
+{titulo:'La cubeta de bambú',tipo:'cascada',
+ historia:'Con un tronco grueso de bambú fabricaste una cubeta para transportar agua desde la cascada.',
+ pregunta:'La cubeta es un cilindro de 20 cm de diámetro y 30 cm de altura. ¿Cuántos centímetros cúbicos de agua le caben? (π = 3.14)',
+ formula:'V = π × r² × h;  r = d ÷ 2',lupa:'¡Cuidado! El dato es el DIÁMETRO. Primero obtén el radio: 20 ÷ 2 = 10 cm.',
+ svg:()=>cilindro(200,82,55,14,133,'#b5c252','#7dd3fc','#4d5a12')+`<path d="M145 130 A55 14 0 0 0 255 130 M145 176 A55 14 0 0 0 255 176" stroke="#6b7a1a" stroke-width="4" fill="none"/><path d="M160 100 V200" stroke="#e5ee9a" stroke-width="5" opacity=".6"/><line x1="145" y1="82" x2="255" y2="82" stroke="#0c4a6e" stroke-width="1.6" stroke-dasharray="5 4"/>`+cota(145,82,255,82,'d = 20 cm',{off:-30,dato:true})+cota(255,82,255,215,'30 cm',{off:-22,dato:true}),
+ opciones:[
+  {t:'9,420 cm³',ok:true},
+  {t:'37,680 cm³',tag:'Usó el diámetro en lugar del radio',fb:'Usaste 20 cm (el diámetro) como radio. El radio es la mitad: 10 cm. V = 3.14 × 10² × 30.'},
+  {t:'1,884 cm³',tag:'Calculó área lateral (2πrh)',fb:'Calculaste 2 × π × r × h, que es el área de la cara lateral, no el volumen. Usa V = π × r² × h.'},
+  {t:'942 cm³',tag:'No elevó el radio al cuadrado',fb:'Olvidaste elevar el radio al cuadrado: π × 10 × 30. Debe ser π × 10² × 30 = 3.14 × 100 × 30.'}]}
+],
+/* ---------- DÍA 4 ---------- */
+[
+{titulo:'Pintura fosforescente',tipo:'pico',
+ historia:'Para que el helicóptero te vea de noche, pintarás el piso de la plataforma de la torre con pintura fosforescente.',
+ pregunta:'La plataforma es un cuadrado de 3 m por lado y cada litro de pintura cubre 2 m². ¿Cuántos litros necesitas?',
+ formula:'A = l × l;  litros = área ÷ rendimiento',lupa:'Paso 1: calcula el ÁREA del cuadrado. Paso 2: divide entre lo que cubre cada litro (2 m²).',
+ svg:()=>{let s=`<rect x="125" y="50" width="150" height="150" fill="#8b5e34" stroke="#fbbf24" stroke-width="3"/>`;for(let i=1;i<6;i++)s+=`<line x1="125" y1="${50+i*25}" x2="275" y2="${50+i*25}" stroke="#6b4423" stroke-width="2"/>`;
+  s+=`<rect x="125" y="50" width="90" height="150" fill="#a3e635" opacity=".35"/><rect x="125" y="50" width="90" height="150" fill="none" stroke="#bef264" stroke-width="2" style="filter:drop-shadow(0 0 6px #a3e635)"/>`+[[125,50],[275,50],[275,200],[125,200]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="6" fill="#fbbf24"/>`).join('')+cn(125,200,275,200,'3 m',{off:14,dato:true})+cn(275,50,275,200,'3 m',{off:-18,dato:true})+`<path d="M318 168 L350 168 L345 208 L323 208 Z" fill="#a3e635" stroke="#365314" stroke-width="2"/><ellipse cx="334" cy="168" rx="16" ry="4.5" fill="#d9f99d" stroke="#365314" stroke-width="1.5"/><path d="M322 168 Q334 150 346 168" stroke="#e5e7eb" stroke-width="2" fill="none"/>`+txt(336,226,'1 L cubre 2 m²',{dato:true,c:'#d9f99d',h:'#0b1d3a',fs:12})+txt(80,30,'vista desde arriba',{c:'#c7d2fe',h:'#0b1d3a',fs:11});return s;},
+ opciones:[
+  {t:'4.5 L',ok:true},
+  {t:'6 L',tag:'Usó el perímetro en lugar del área',fb:'Usaste el perímetro (3 × 4 = 12 m) y lo dividiste entre 2. La pintura cubre una SUPERFICIE: primero calcula el área (3 × 3 = 9 m²).'},
+  {t:'18 L',tag:'Multiplicó en lugar de dividir',fb:'Multiplicaste el área por 2. Si cada litro cubre 2 m², debes DIVIDIR: 9 ÷ 2.'},
+  {t:'9 L',tag:'No aplicó el rendimiento',fb:'9 es el área en m², pero cada litro cubre 2 m². Falta dividir: 9 ÷ 2.'}]},
+{titulo:'Combustible para el generador',tipo:'pico',
+ historia:'El reflector de la torre funciona con un generador. Necesitas saber cuánto combustible cabe en su tanque cilíndrico.',
+ pregunta:'El tanque mide 0.5 m de radio y 2 m de altura. ¿Cuántos litros de combustible le caben? (π = 3.14; 1 m³ = 1,000 L)',
+ formula:'V = π × r² × h;  1 m³ = 1,000 L',lupa:'0.5² = 0.25. Calcula el volumen en m³ y después multiplica por 1,000 para obtener litros.',
+ svg:()=>cilindro(200,72,50,13,143,'#dc2626','#f87171','#7f1d1d')+`<path d="M165 90 V200" stroke="#fca5a5" stroke-width="6" opacity=".5"/><text x="200" y="150" text-anchor="middle" font-size="13" font-weight="900" fill="#fff" font-family="Nunito">COMBUSTIBLE</text><circle cx="200" cy="72" r="3" fill="#fde68a"/>`+cn(200,72,250,72,'r = 0.5 m',{off:0,lab:-14,dash:true,dato:true})+cn(250,72,250,215,'2 m',{off:-22,dato:true})+`<rect x="40" y="175" width="62" height="45" rx="6" fill="#475569" stroke="#1e293b" stroke-width="2"/><path d="M75 182 L64 200 L73 200 L66 214 L84 194 L74 194 Z" fill="#fde047"/><path d="M102 205 H150" stroke="#94a3b8" stroke-width="5"/><rect x="270" y="226" width="118" height="24" rx="8" fill="#0b1d3a" stroke="#fde68a"/>`+txt(329,238,'1 m³ = 1,000 L',{c:'#fde68a',h:'#0b1d3a',fs:12}),
+ opciones:[
+  {t:'1,570 L',ok:true},
+  {t:'6,280 L',tag:'Usó el diámetro en lugar del radio',fb:'Usaste 1 m (el diámetro) como radio. El radio es 0.5 m, así que r² = 0.25 m². V = 3.14 × 0.25 × 2 = 1.57 m³.'},
+  {t:'157 L',tag:'Conversión m³ → L incorrecta',fb:'Tu volumen en m³ es correcto (1.57 m³), pero la conversión no: 1 m³ = 1,000 L, así que debes multiplicar por 1,000, no por 100.'},
+  {t:'3,140 L',tag:'No elevó el radio al cuadrado',fb:'Olvidaste elevar el radio al cuadrado: 3.14 × 0.5 × 2. Debe ser 3.14 × 0.5² × 2 = 3.14 × 0.25 × 2.'}]},
+{titulo:'La lona reflectante',tipo:'pico',
+ historia:'Para que la torre brille con la luz de los reflectores, la forrarás con lona reflectante.',
+ pregunta:'La torre es un prisma de base cuadrada de 2 m por lado y 5 m de altura. Cubrirás SOLO sus 4 caras laterales. ¿Cuánta lona necesitas?',
+ formula:'A lateral = 4 × (l × h)',lupa:'Cada cara lateral es un rectángulo de 2 m × 5 m. La torre tiene 4 caras laterales; las bases NO se cubren.',
+ svg:()=>`<circle cx="215" cy="38" r="40" fill="#fde047" opacity=".18"/><polygon points="170,70 230,70 260,50 200,50" fill="#fdba74" stroke="#7c2d12" stroke-width="2" stroke-linejoin="round"/><polygon points="230,70 260,50 260,200 230,220" fill="#c2410c" stroke="#7c2d12" stroke-width="2" stroke-linejoin="round" class="dato"/><rect x="170" y="70" width="60" height="150" fill="#fb923c" stroke="#7c2d12" stroke-width="2" class="dato"/><path d="M170 100 L230 80 M170 140 L230 120 M170 180 L230 160 M170 220 L230 200" stroke="#fff" stroke-width="3" opacity=".45"/><rect x="205" y="34" width="20" height="16" rx="3" fill="#fde047" stroke="#a16207"/><path d="M228 38 L290 18 M228 42 L300 42 M202 38 L140 18 M202 42 L130 42" stroke="#fde047" stroke-width="2.5" stroke-linecap="round" opacity=".8" class="luz"/>`+cn(170,220,230,220,'2 m',{off:14,dato:true})+cn(170,70,170,220,'5 m',{off:16,dato:true})+cn(230,220,260,200,'2 m',{off:12})+txt(320,120,'base',{c:'#c7d2fe',h:'#0b1d3a',fs:12})+txt(320,136,'cuadrada',{c:'#c7d2fe',h:'#0b1d3a',fs:12}),
+ opciones:[
+  {t:'40 m²',ok:true},
+  {t:'20 m³',tag:'Calculó volumen en lugar de área',fb:'Calculaste el VOLUMEN (2 × 2 × 5). La lona cubre caras: necesitas un ÁREA en m².'},
+  {t:'48 m²',tag:'Incluyó las bases',fb:'Incluiste las dos bases cuadradas (2 × 2 × 2 = 8 m²). El problema pide SOLO las 4 caras laterales.'},
+  {t:'10 m²',tag:'Solo calculó una cara',fb:'Ese es el área de una sola cara (2 × 5). La torre tiene 4 caras laterales iguales: 4 × 10.'}]},
+{titulo:'Luces para el helipuerto',tipo:'pico',
+ historia:'El helicóptero aterrizará en la plataforma circular del pico. Colocarás tiras de luces alrededor de todo su borde.',
+ pregunta:'La plataforma tiene 3 m de radio y cada tira de luces mide 4 m. ¿Cuántas tiras necesitas como mínimo? (π = 3.14)',
+ formula:'C = 2 × π × r;  tiras = C ÷ 4 (redondea hacia arriba)',lupa:'Calcula la circunferencia con el RADIO (3 m), divide entre 4 m y piensa: ¿puedes dejar un tramo del borde sin luces?',
+ svg:()=>{let s=`<path d="M100 190 L95 245 M300 190 L305 245 M200 205 L200 250" stroke="#475569" stroke-width="6"/><ellipse cx="200" cy="160" rx="130" ry="48" fill="#6b4423" stroke="#fbbf24" stroke-width="3"/><ellipse cx="200" cy="160" rx="96" ry="35" fill="none" stroke="#e5e7eb" stroke-width="2" opacity=".5"/><text x="160" y="172" font-size="30" font-weight="900" fill="#e5e7eb" opacity=".5" font-family="Nunito">H</text>`;const cols=['#fde047','#f472b6','#67e8f9'];for(let i=0;i<24;i++){const a=i*Math.PI/12;s+=`<circle cx="${r1(200+Math.cos(a)*130)}" cy="${r1(160+Math.sin(a)*48)}" r="4" fill="${cols[i%3]}" class="luz" style="animation-delay:${(i%3)*.4}s;filter:drop-shadow(0 0 4px ${cols[i%3]})"/>`;}
+  s+=`<circle cx="200" cy="160" r="3.5" fill="#fde68a"/>`+cn(200,160,330,160,'r = 3 m',{off:0,lab:-13,dash:true,dato:true})+`<rect x="14" y="14" width="200" height="30" rx="10" fill="#0b1d3a" stroke="#fde68a"/>`+txt(114,30,'Cada tira de luces mide 4 m',{dato:true,c:'#fde68a',h:'#0b1d3a',fs:12});return s;},
+ opciones:[
+  {t:'5 tiras',ok:true},
+  {t:'4 tiras',tag:'Redondeó hacia abajo',fb:'La circunferencia mide 18.84 m y 18.84 ÷ 4 = 4.71. Con 4 tiras solo cubres 16 m y faltarían 2.84 m de borde: debes redondear hacia ARRIBA.'},
+  {t:'8 tiras',tag:'Usó el área en lugar de la circunferencia',fb:'Usaste el área (3.14 × 3² = 28.26 m²). Las luces van en el BORDE: necesitas la circunferencia C = 2 × 3.14 × 3 = 18.84 m.'},
+  {t:'10 tiras',tag:'Usó el diámetro como radio',fb:'Usaste 6 m (el diámetro) como radio: 2 × 3.14 × 6 = 37.68 m. El radio es 3 m, así que C = 18.84 m.'}]}
+]
+];
+
+/* ====================== SINCRONIZACIÓN ====================== */
+async function fbPut(ruta,datos){if(!FB)return false;try{const r=await fetch(FB+'/isla_poligono/'+ruta+'.json',{method:'PUT',body:JSON.stringify(datos)});return r.ok;}catch(e){return false;}}
+async function fbGet(ruta){if(!FB)return null;try{const r=await fetch(FB+'/isla_poligono/'+ruta+'.json',{cache:'no-store'});if(!r.ok)throw new Error(r.status);return await r.json();}catch(e){return undefined;}}
+function guardarLocalAlumno(rec){const m=LS.get('isla_alumnos',{});m[rec.id]=rec;LS.set('isla_alumnos',m);}
+
+/* ====================== VISTA DEL ALUMNO ====================== */
+let S=LS.get('isla_estado_v1',null);
+let UI={cajon:false,nuevaInsignia:null,tipeo:null};
+function nuevoEstado(nombre,grupo,avatar){
+ const id='a'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+ return {id,nombre,grupo,avatar,fase:'prologo',inicio:Date.now(),fin:null,
+  diag:{idx:0,resp:[],elegida:null},variantes:[0,1,2,3].map(()=>Math.floor(Math.random()*4)),
+  dia:0,dias:[0,1,2,3].map(()=>({intentos:0,errores:[],descartadas:[],completado:false,primer:false,puntos:0,mult:1,esperando:false,ultimo:null,absorbido:false})),
+  puntaje:0,estrellas:0,racha:0,maxRacha:0,lupaUsada:false,lupaDia:null,escudoUsado:false,escudoActivo:false,modal:null,animar:null,final:null,autoeval:null,actualizado:Date.now()};
+}
+function registroDe(s){
+ const dias=s.dias.map((d,i)=>({c:!!d.completado,intentos:d.intentos,errores:d.errores.length,primer:!!d.primer,variante:s.variantes[i]+1,puntos:d.puntos||0}));
+ return {id:s.id,nombre:s.nombre,grupo:s.grupo||'',avatar:s.avatar,diag:s.diag.resp.filter(Boolean).length,diagResp:s.diag.resp.length,dias,retos:dias.filter(d=>d.c).length,puntaje:s.puntaje,energia:s.puntaje*10,estrellas:s.estrellas,errores:s.dias.reduce((a,d)=>a+d.errores.length,0),erroresDetalle:s.dias.flatMap((d,i)=>d.errores.map(e=>'Día '+(i+1)+': '+e)),inicio:s.inicio,fin:s.fin||0,tiempo:(s.fin||Date.now())-s.inicio,estado:s.fin?'finalizado':'en curso',final:s.final||'',autoeval:s.autoeval||null,fase:s.fase,diaActual:s.dia,actualizado:Date.now()};
+}
+let syncT=null;
+function guardar(){if(!S)return;S.actualizado=Date.now();LS.set('isla_estado_v1',S);const rec=registroDe(S);guardarLocalAlumno(rec);if(bc)try{bc.postMessage({t:'alumno',rec});}catch(e){}
+ clearTimeout(syncT);syncT=setTimeout(()=>{fbPut('alumnos/'+S.id,rec);fbPut('energia/'+S.id,rec.energia);},250);}
+function retoActual(){return RETOS[S.dia][S.variantes[S.dia]];}
+function atm(){if(!S||['registro','prologo','diag'].includes(S.fase))return 0;if(S.fase==='mision')return Math.min(S.dia,3);return 4;}
+
+function renderAlumno(){document.body.className='atm-'+atm();const app=$('#app');
+ if(!S||S.fase==='registro'){app.innerHTML=vRegistro();return;}
+ if(S.fase==='prologo'){app.innerHTML=cabecera(false)+vPrologo();iniciarTipeo();return;}
+ if(S.fase==='diag'){app.innerHTML=cabecera(true)+vDiag();return;}
+ if(S.fase==='mision'){app.innerHTML=cabecera(true)+vMision()+cajon()+(S.modal?vModal():'');if(S.animar!=null){const desde=S.animar;setTimeout(()=>animarMarcador(desde,()=>{S.animar=null;LS.set('isla_estado_v1',S);marcarEstaciones();}),350);}refrescarCoop();return;}
+ if(S.fase==='final'){app.innerHTML=cabecera(true)+vFinal();refrescarCoop();return;}
+ if(S.fase==='autoeval'){app.innerHTML=cabecera(true)+vAutoeval();return;}
+ if(S.fase==='pasaporte'){app.innerHTML=cabecera(true)+vPasaporte();return;}
+}
+
+function cabecera(stats){
+ const d=S&&S.fase==='mision'?DIAS[Math.min(S.dia,3)]:null;
+ const sub=d?`Día ${d.n} · ${d.nombre} — ${d.zona}`:(S.fase==='diag'?'Fase 0 · Calibración del equipo':S.fase==='prologo'?'Transmisión de emergencia':'¡Rescate completado!');
+ const mult=Math.max(1,Math.min(3,S.racha));
+ return `<header class="cielo no-print"><div class="deco deco-sol"></div><div class="deco deco-lluvia"></div><div class="deco deco-agua"></div><div class="deco deco-noche"><div class="bengala"></div></div>
+ <div class="wrap relative py-4">
+  <div class="flex flex-wrap items-center justify-between gap-3">
+   <div class="flex items-center gap-3 min-w-0"><div class="shrink-0 grid place-items-center bg-white rounded-2xl shadow-lg" style="width:48px;height:48px">${avatarSVG(S.avatar,34)}</div>
+    <div class="min-w-0"><h1 class="text-xl sm:text-2xl font-extrabold drop-shadow truncate">Sobrevivientes de Isla Polígono</h1><div class="text-sm font-bold opacity-95 truncate">${esc(S.nombre)} · ${sub}</div></div></div>
+   ${stats?`<div class="flex flex-wrap gap-2"><span class="chip" title="Cronómetro">⏱️ <span id="crono">${fmtT(Date.now()-S.inicio)}</span></span><span class="chip" title="Puntaje">🏅 ${S.puntaje} pts</span><span class="chip" title="Estrellas de precisión">⭐ ${S.estrellas}</span><span class="chip" title="Multiplicador de racha">🔥 x${mult}</span></div>`:''}
+  </div>
+  ${stats?`<div class="mt-3"><div class="flex justify-between text-xs font-extrabold mb-1"><span>📡 Señal de Rescate Cooperativa</span><span id="coop-txt">sintonizando…</span></div><div class="barra"><i id="coop-fill" style="width:0%"></i></div></div>`:''}
+ </div></header>`;
+}
+
+function vRegistro(){
+ const prev=S&&S.nombre?S:null;
+ return `<div class="cielo" style="min-height:100vh"><div class="deco deco-sol" style="opacity:1"></div>
+ <div class="wrap relative py-8 sm:py-12">
+  <div class="text-center mb-6"><div class="inline-block flota">${mapaMini()}</div>
+   <h1 class="text-4xl sm:text-5xl font-extrabold drop-shadow-lg mt-2">Sobrevivientes de<br>Isla Polígono</h1>
+   <p class="font-bold mt-2 text-lg opacity-95">Una expedición de figuras y cuerpos geométricos</p></div>
+  <div class="bitacora cuadricula max-w-xl mx-auto p-5 sm:p-7 text-left" style="color:var(--tinta)">
+   ${prev?`<div class="fb-ok mb-5 flex flex-wrap items-center justify-between gap-3"><div><b>Expedición guardada:</b> ${esc(prev.nombre)}</div><div class="flex gap-2"><button class="btn btn-prim btn-mini" onclick="ISLA.continuar()">Continuar</button><button class="btn btn-sec btn-mini" onclick="ISLA.otroAlumno()">Soy otra persona</button></div></div>`:''}
+   <h2 class="text-2xl font-extrabold mb-1">📒 Registro de expedicionario</h2>
+   <p class="text-sm font-semibold opacity-75 mb-4">Escribe tu nombre completo tal como aparece en la lista.</p>
+   <label class="block font-extrabold mb-1" for="r-nombre">Nombre completo</label>
+   <input id="r-nombre" class="campo mb-3" maxlength="60" placeholder="Ej. Ana Sofía López Ramírez" autocomplete="name">
+   <label class="block font-extrabold mb-1" for="r-grupo">Grado y grupo <span class="font-semibold opacity-60">(opcional)</span></label>
+   <input id="r-grupo" class="campo mb-4" maxlength="20" placeholder="Ej. 1.° B">
+   <div class="font-extrabold mb-2">Elige tu rol en la expedición</div>
+   <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6" id="avatares">${Object.keys(AVATARES).map((k,i)=>`<div class="avatar-op ${i===0?'sel':''}" data-av="${k}" role="button" tabindex="0" onclick="ISLA.elegirAvatar('${k}')"><div class="flex justify-center mb-1">${avatarSVG(k,46)}</div><div class="font-extrabold">${AVATARES[k].n}</div><div class="text-xs font-semibold opacity-70 leading-tight mt-1">${AVATARES[k].d}</div></div>`).join('')}</div>
+   <div class="text-center"><button class="btn btn-prim text-lg px-8 py-4" onclick="ISLA.registrar()">🧭 Iniciar expedición</button></div>
+  </div></div></div>`;
+}
+function mapaMini(){return `<svg viewBox="0 0 120 80" width="150" aria-hidden="true"><ellipse cx="60" cy="58" rx="56" ry="18" fill="#3fa7c9" opacity=".6"/><path d="M14 58 C20 40 40 34 60 38 C80 30 104 40 106 58 Z" fill="#f3d9a4"/><path d="M30 52 C40 40 60 38 74 44 C86 40 96 46 98 54 Z" fill="#4f9b4a"/><path d="M78 46 L86 22 L94 46 Z" fill="#6b7280"/><rect x="84.5" y="12" width="3" height="12" fill="#fff"/><circle cx="86" cy="11" r="3" fill="#fde047"/><path d="M40 50 l2-14 M42 36 q6-4 10 0 M42 36 q-6-4-10 0" stroke="#15803d" stroke-width="2" fill="none"/></svg>`;}
+
+function vPrologo(){return `<main class="wrap py-6"><div class="radio max-w-2xl mx-auto p-5 sm:p-7">
+ <div class="flex items-center justify-between mb-4 relative z-10"><div class="flex items-center gap-2 font-bold"><span class="led"></span> CANAL 16 · EMERGENCIA</div><div class="onda" aria-hidden="true">${[10,18,8,22,14,20,9].map((h,i)=>`<span style="height:${h}px;animation-delay:${i*.12}s"></span>`).join('')}</div></div>
+ <div id="tipeo" class="text-base sm:text-lg leading-relaxed relative z-10 cursor" style="min-height:260px;white-space:pre-wrap" onclick="ISLA.saltarTipeo()"></div>
+ <div class="mt-5 text-center relative z-10"><button id="btn-prologo" class="btn btn-prim" style="opacity:.3" onclick="ISLA.irDiag()">📻 Recibido. ¡Cambio y fuera!</button><div class="text-xs mt-2 opacity-60">(toca el texto para mostrarlo completo)</div></div>
+ </div></main>`;}
+function textoPrologo(){return `…kshhh… ¿Alguien me copia? Aquí la Estación de Rescate Costera.\n\n${S.nombre.split(' ')[0]}, tu velero naufragó anoche frente a ISLA POLÍGONO, una isla donde todo —las rocas, los árboles, hasta las olas— parece tener forma geométrica.\n\nTenemos tu posición aproximada, pero la tormenta nos impide verte. Para sobrevivir 4 días deberás:\n  ▸ explorar la Playa del Naufragio,\n  ▸ levantar un refugio en el Claro,\n  ▸ reunir agua en la Cascada y\n  ▸ encender la Torre de Señales en el Pico.\n\nCada enigma que resuelvas suma energía a la Señal de Rescate de toda la expedición. Primero calibraremos tu equipo… Cambio.`;}
+function iniciarTipeo(){const el=$('#tipeo');if(!el)return;const t=textoPrologo();let i=0;clearInterval(UI.tipeo);UI.tipeo=setInterval(()=>{i+=2;el.textContent=t.slice(0,i);if(i>=t.length){clearInterval(UI.tipeo);finTipeo();}},22);}
+function finTipeo(){const el=$('#tipeo');if(el){el.textContent=textoPrologo();el.classList.remove('cursor');}const b=$('#btn-prologo');if(b)b.style.opacity=1;}
+
+function vDiag(){const q=DIAG[S.diag.idx];
+ if(S.diag.idx>=DIAG.length){const n=S.diag.resp.filter(Boolean).length;const msg=n===3?'¡Equipo perfectamente calibrado! Tienes bases sólidas.':n===2?'Buen nivel. Repasa la explicación que fallaste: te servirá en la isla.':'Tu equipo necesita ajustes. Ten a la mano el Formulario Geométrico durante la misión.';
+  return `<main class="wrap py-6"><div class="bitacora cuadricula max-w-2xl mx-auto p-6 text-center"><div class="text-6xl mb-2">${n===3?'🛰️':n===2?'📡':'🔧'}</div><h2 class="text-3xl font-extrabold">Calibración: ${n} de 3</h2><p class="font-semibold mt-2 mb-5 opacity-80">${msg}</p>
+  <div class="flex justify-center gap-2 mb-6">${S.diag.resp.map((r,i)=>`<span class="punto ${r?'p-ok':'p-no'}" style="width:40px;height:40px;font-size:1rem">${r?'✓':'✗'}</span>`).join('')}</div>
+  <button class="btn btn-prim text-lg" onclick="ISLA.iniciarMision()">🏝️ Comenzar el Día 1</button></div></main>`;}
+ const el=S.diag.elegida;
+ return `<main class="wrap py-6"><div class="bitacora cuadricula max-w-2xl mx-auto p-5 sm:p-7">
+ <div class="flex justify-between items-center mb-3"><span class="font-extrabold text-sm uppercase tracking-wide" style="color:var(--acento)">Fase 0 · Calibración ${S.diag.idx+1}/3</span><span class="text-sm font-bold opacity-60">Conocimientos previos</span></div>
+ <h2 class="text-2xl font-extrabold mb-4">${q.p}</h2>
+ <div class="grid gap-3">${q.o.map((o,i)=>`<button class="op ${el!=null&&i===q.ok?'correcta':''} ${el===i&&i!==q.ok?'descartada':''}" ${el!=null?'disabled':''} onclick="ISLA.diagResp(${i})"><span class="letra">${'ABC'[i]}</span>${o}</button>`).join('')}</div>
+ ${el!=null?`<div class="${el===q.ok?'fb-ok':'fb-error'} mt-4"><b>${el===q.ok?'✅ ¡Correcto!':'❌ No exactamente.'}</b> ${q.e}</div><div class="text-right mt-4"><button class="btn btn-prim" onclick="ISLA.diagSig()">Siguiente →</button></div>`:''}
+ </div></main>`;}
+
+function mapaIsla(){
+ const est=[[95,165],[235,118],[395,140],[545,62]];const legs=['M95 165 C140 150 180 118 235 118','M235 118 C290 118 340 165 395 140','M395 140 C450 115 495 80 545 62'];
+ const p=S.animar!=null?est[S.animar]:est[Math.min(S.dia,3)];const av=AVATARES[S.avatar];
+ const nombres=['Playa del Naufragio','Claro del Refugio','Cascada de Agua','Pico de la Torre'];const ly=[198,92,176,22];
+ const hecha=i=>i<S.dia;const torreOn=S.dia>=4;
+ return `<svg viewBox="0 0 640 220" class="w-full h-auto block" role="img" aria-label="Mapa de Isla Polígono con tu progreso">
+ <defs><linearGradient id="mar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5ec4e0"/><stop offset="1" stop-color="#2a8fb5"/></linearGradient><radialGradient id="brillo"><stop offset="0" stop-color="#fde047"/><stop offset="1" stop-color="#fde047" stop-opacity="0"/></radialGradient></defs>
+ <rect width="640" height="220" fill="url(#mar)"/>
+ <g stroke="#bfeaf5" stroke-width="1.6" fill="none" opacity=".7"><path d="M20 30 q10-5 20 0 t20 0"/><path d="M590 190 q10-5 20 0 t20 0"/><path d="M300 20 q10-5 20 0 t20 0"/><path d="M450 205 q10-5 20 0 t20 0"/></g>
+ <path d="M40 170 C30 120 90 88 150 95 C200 60 260 70 300 92 C360 72 420 98 470 70 C520 28 600 28 612 80 C625 130 582 160 540 176 C470 205 380 200 300 205 C220 212 120 215 70 200 C50 192 42 182 40 170 Z" fill="#f3d9a4" stroke="#e4c48b" stroke-width="3"/>
+ <path d="M150 112 C200 82 260 90 300 108 C360 90 420 112 470 88 C510 58 580 60 590 92 C596 125 560 148 520 160 C460 182 380 176 300 182 C230 186 170 180 140 165 C118 150 124 126 150 112 Z" fill="#7cbf5c"/>
+ <path d="M500 115 L545 40 L590 115 Z" fill="#8b95a5"/><path d="M530 64 L545 40 L560 64 L552 60 L545 66 L538 60 Z" fill="#f1f5f9"/>
+ <rect x="542" y="30" width="6" height="22" fill="${torreOn?'#fde047':'#e5e7eb'}"/>${torreOn?'<circle cx="545" cy="30" r="20" fill="url(#brillo)" class="luz"/>':''}
+ <path d="M372 108 h12 v42 h-12z" fill="#bae6fd"/><path d="M375 108 V150 M381 108 V150" stroke="#fff" stroke-width="2" stroke-dasharray="6 4" class="agua-cae"/><ellipse cx="380" cy="152" rx="20" ry="6" fill="#38bdf8"/>
+ <path d="M220 112 L235 92 L250 112 Z" fill="#f97316"/><circle cx="205" cy="98" r="10" fill="#2f6b2f"/><circle cx="265" cy="100" r="9" fill="#2f6b2f"/>
+ <path d="M70 172 q4-24 14-30 M84 142 q8-6 16 0 M84 142 q-8-6-16 0 M84 142 q4-8 12-8" stroke="#2f6b2f" stroke-width="3" fill="none"/><path d="M104 182 L130 182 L126 190 L108 190 Z" fill="#8b5a2b"/><path d="M117 182 V166 L127 178 Z" fill="#fff"/>
+ ${legs.map((d,i)=>`<path d="${d}" fill="none" stroke="#fff" stroke-width="3" stroke-dasharray="2 7" stroke-linecap="round" opacity=".95"/><path id="leg${i}" d="${d}" fill="none" class="${hecha(i+1)?'ruta-hecha':''}" stroke="${hecha(i+1)?'#fde047':'none'}" stroke-width="4" stroke-linecap="round"/>`).join('')}
+ ${est.map((e,i)=>`<circle cx="${e[0]}" cy="${e[1]}" r="9" class="estacion ${hecha(i)?'hecha':''} ${i===S.dia?'actual':''}" data-est="${i}" fill="${i===S.dia?'#fff':'#e5e7eb'}" stroke="#7c2d12" stroke-width="2.5"/><text x="${e[0]}" y="${ly[i]}" text-anchor="middle" font-family="Nunito" font-weight="900" font-size="12.5" fill="#fff" stroke="#3b2a1a" stroke-width="3.5" paint-order="stroke">${i+1}. ${nombres[i]}</text>`).join('')}
+ <g id="marcador" transform="translate(${p[0]},${p[1]})"><g transform="translate(0,-24)"><path d="M0 22 L-7 8 L7 8 Z" fill="${av.c}"/><circle r="15" fill="#fff" stroke="${av.c}" stroke-width="3"/><g transform="translate(-11,-11) scale(.92)">${avatarIcon(S.avatar,av.c)}</g></g></g>
+ <g transform="translate(605,190)"><circle r="16" fill="#fff" opacity=".85"/><path d="M0 -13 L4 0 L0 13 L-4 0 Z" fill="#dc2626"/><text y="-17" text-anchor="middle" font-size="9" font-weight="900" fill="#fff" font-family="Nunito">N</text></g>
+ </svg>`;}
+function marcarEstaciones(){document.querySelectorAll('.estacion').forEach(c=>{const i=+c.dataset.est;c.classList.toggle('hecha',i<S.dia);});}
+function animarMarcador(leg,cb){const p=document.getElementById('leg'+leg),m=document.getElementById('marcador');if(!p||!m){cb&&cb();return;}const L=p.getTotalLength(),t0=performance.now();
+ function paso(t){const k=Math.min(1,(t-t0)/1900),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2,pt=p.getPointAtLength(L*e);m.setAttribute('transform',`translate(${pt.x},${pt.y})`);if(k<1)requestAnimationFrame(paso);else{p.setAttribute('stroke','#fde047');p.classList.add('ruta-hecha');cb&&cb();}}requestAnimationFrame(paso);}
+
+function vMision(){
+ const k=S.dia,d=S.dias[k],P=retoActual(),D=DIAS[k];
+ const orden=barajar([0,1,2,3],hash(S.id+'-'+k));
+ const lupa=S.lupaDia===k;
+ let fb='';
+ if(d.completado){const mult=d.mult;fb=`<div class="fb-ok mt-4" id="fb"><div class="text-xl font-extrabold">✅ ¡Correcto! ${d.primer?'⭐ Estrella de precisión':''}</div><p class="font-semibold mt-1">+1 punto × racha x${mult} = <b>${d.puntos} ${d.puntos===1?'punto':'puntos'}</b> para tu expedición y ${d.puntos*10} de energía para la Señal Cooperativa.</p><div class="text-right mt-3"><button class="btn btn-prim" onclick="ISLA.continuarDia()">${k<3?'Ver mi insignia y avanzar →':'Encender la torre 🔥'}</button></div></div>`;}
+ else if(d.esperando){const op=P.opciones[d.ultimo];fb=`<div class="fb-error mt-4" id="fb"><div class="text-lg font-extrabold">❌ «${op.t}» no es correcto.</div><p class="font-semibold mt-1">🧠 <b>¿Qué pasó?</b> ${op.fb}</p>${d.absorbido?'<p class="mt-2 font-bold" style="color:#4338ca">🛡️ El Escudo Protector absorbió el error: tu racha sigue intacta.</p>':'<p class="mt-2 text-sm font-bold opacity-70">Tu racha se reinició, pero aún puedes superar el reto.</p>'}<div class="text-right mt-3"><button class="btn btn-prim" onclick="ISLA.reintentar()">Entendido, intentar de nuevo ↻</button></div></div>`;}
+ const tabs=DIAS.map((x,i)=>`<div class="dia-tab ${i<k?'hecho':i===k?'actual':'bloq'}">${i<k?'✓':i===k?'▶':'🔒'} Día ${x.n}<div class="text-[10px] font-bold opacity-75 truncate">${x.zona}</div></div>`).join('');
+ return `<main class="wrap py-5 grid gap-4">
+ <section class="bitacora overflow-hidden no-print">${mapaIsla()}<div class="flex gap-2 p-3">${tabs}</div></section>
+ <section class="bitacora cuadricula p-4 sm:p-6">
+  <div class="flex flex-wrap items-center justify-between gap-2 mb-2"><span class="font-extrabold text-sm uppercase tracking-wide" style="color:var(--acento)">Día ${D.n} · ${D.nombre}</span><span class="text-xs font-bold opacity-60">Objetivo: ${D.meta}</span></div>
+  <div class="text-sm font-semibold italic opacity-80 mb-3">📻 «${D.radio}»</div>
+  <h2 class="text-2xl sm:text-3xl font-extrabold mb-1">${P.titulo}</h2>
+  <p class="font-semibold mb-3">${P.historia}</p>
+  <div class="grid lg:grid-cols-5 gap-4 items-start">
+   <div class="lg:col-span-3 ${lupa?'lupa-on':''}">${escena(P.tipo,P.svg(),P.titulo)}</div>
+   <div class="lg:col-span-2 grid gap-2">
+    <div class="font-extrabold text-sm uppercase opacity-60">Comodines y herramientas</div>
+    <button class="btn btn-sec justify-start" ${S.lupaUsada?'disabled':''} onclick="ISLA.lupa()">🔍 Lupa Geométrica <span class="text-xs opacity-60 ml-auto">${S.lupaUsada?(lupa?'activa aquí':'usada'):'1 uso'}</span></button>
+    <button class="btn btn-sec justify-start" ${S.escudoUsado?'disabled':''} onclick="ISLA.escudo()">🛡️ Escudo Protector <span class="text-xs opacity-60 ml-auto">${S.escudoActivo?'¡activo!':S.escudoUsado?'usado':'1 uso'}</span></button>
+    <button class="btn btn-sec justify-start" onclick="ISLA.cajon(true)">📐 Formulario Geométrico</button>
+    ${S.escudoActivo?'<div class="text-sm font-bold p-2 rounded-xl" style="background:#eef2ff;color:#4338ca">🛡️ Escudo activo: absorberá tu próximo error sin perder la racha.</div>':''}
+    <div class="text-xs font-semibold opacity-70 mt-1">Acierta al primer intento para ganar ⭐ y subir tu racha 🔥 (x1 → x2 → x3).</div>
+   </div>
+  </div>
+  ${lupa?`<div class="caja-lupa mt-4"><b>🔍 Lupa Geométrica:</b> <span class="font-mono font-bold" style="color:#b45309">${P.formula}</span><br><span class="font-semibold">${P.lupa}</span></div>`:''}
+  <p class="text-lg sm:text-xl font-extrabold mt-4 mb-3">❓ ${P.pregunta}</p>
+  <div class="grid sm:grid-cols-2 gap-3">${orden.map((i,n)=>{const o=P.opciones[i];const desc=d.descartadas.includes(i);const cor=d.completado&&o.ok;return `<button class="op ${desc?'descartada':''} ${cor?'correcta':''}" ${d.completado||d.esperando||desc?'disabled':''} onclick="ISLA.responder(${i})"><span class="letra">${'ABCD'[n]}</span><span>${o.t}</span></button>`;}).join('')}</div>
+  ${fb}
+ </section>
+ <section class="bitacora p-4 no-print"><div class="font-extrabold mb-2">🎖️ Insignias de supervivencia</div><div class="flex flex-wrap gap-3 justify-around">${DIAS.map((x,i)=>`<div class="text-center" style="width:92px">${insignia(i,S.dias[i].completado,74)}<div class="text-xs font-extrabold leading-tight">${x.insignia}</div></div>`).join('')}</div></section>
+ </main>`;}
+
+function vModal(){const i=S.modal.dia,D=DIAS[i];return `<div class="modal-fondo"><div class="modal bitacora p-6 text-center">
+ <div class="text-sm font-extrabold uppercase tracking-wide" style="color:var(--acento)">¡Día ${D.n} superado!</div>
+ <div class="flex justify-center my-3">${insignia(i,true,140,true)}</div>
+ <h3 class="text-2xl font-extrabold">Insignia: ${D.insignia}</h3>
+ <p class="font-semibold mt-2 opacity-80">${i<3?`La ruta hacia <b>${DIAS[i+1].zona}</b> está despejada. Tu marcador avanzará en el mapa.`:'¡La torre está lista para encenderse!'}</p>
+ <button class="btn btn-prim mt-5" onclick="ISLA.cerrarModal()">${i<3?'🗺️ Seguir la ruta':'🔥 Encender la señal'}</button></div></div>`;}
+
+function cajon(){return `<aside class="cajon ${UI.cajon?'abierto':''}" id="cajon" aria-label="Formulario geométrico"><div class="p-5"><div class="flex justify-between items-center mb-3"><h3 class="text-2xl font-extrabold">📐 Formulario</h3><button class="btn btn-sec btn-mini" onclick="ISLA.cajon(false)">Cerrar ✕</button></div>
+ ${FORMULAS.map(g=>`<div class="mb-4"><div class="font-extrabold uppercase text-xs tracking-wide mb-1" style="color:var(--acento)">${g[0]}</div>${g[2].map(f=>`<div class="formula"><span>${f[0]}</span><b>${f[1]}</b></div>`).join('')}</div>`).join('')}
+ <div class="text-xs font-semibold opacity-70">b = base · h = altura · l = lado · r = radio · d = diámetro · C = caras, V = vértices, A = aristas (en Euler)</div></div></aside>`;}
+
+function vFinal(){const leg=S.final==='legendario';const t=fmtT(S.fin-S.inicio);
+ return `<main class="wrap py-6"><div class="bitacora p-6 sm:p-8 max-w-3xl mx-auto text-center overflow-hidden">
+ <div class="text-6xl mb-2">${leg?'🚁✨':'🚁'}</div>
+ <div class="font-extrabold uppercase tracking-wide text-sm" style="color:var(--acento)">Final de la expedición</div>
+ <h2 class="text-4xl font-extrabold mb-3">${leg?'¡Rescate Legendario!':'¡Rescate al Límite!'}</h2>
+ <div class="radio p-5 text-left mb-5"><div class="relative z-10 leading-relaxed">${leg?`📻 «Aquí Guardacostas Delta. ¡Recibimos tu señal con potencia máxima! Resolviste cada enigma al primer intento. El helicóptero aterriza sobre tu plataforma iluminada y la tripulación no lo puede creer: a partir de hoy te llaman <b>Leyenda de Isla Polígono</b>.»`:`📻 «Aquí Guardacostas Delta… la señal llega débil, pero ¡llega! Tuviste tropiezos, aprendiste de cada error y encendiste la torre justo cuando el combustible se agotaba. El helicóptero desciende entre la neblina: ¡estás a salvo! Equivocarse también es parte de sobrevivir.»`}</div></div>
+ <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">${[['🏅','Puntaje',S.puntaje],['⭐','Estrellas',S.estrellas+'/4'],['⏱️','Tiempo',t],['🔥','Mejor racha','x'+Math.min(3,S.maxRacha)]].map(x=>`<div class="bg-white rounded-2xl p-3 border" style="border-color:#eadcc0"><div class="text-2xl">${x[0]}</div><div class="text-xs font-bold opacity-60">${x[1]}</div><div class="text-xl font-extrabold">${x[2]}</div></div>`).join('')}</div>
+ <div class="flex flex-wrap justify-center gap-3 mb-6">${[0,1,2,3].map(i=>insignia(i,true,80)).join('')}</div>
+ <button class="btn btn-prim text-lg" onclick="ISLA.irAutoeval()">📝 Hacer mi autoevaluación</button>
+ </div></main>`;}
+
+const AUTO=['Identifico y clasifico figuras planas y cuerpos geométricos.','Reconozco caras, vértices, aristas y desarrollos planos.','Distingo cuándo calcular perímetro, área o volumen.','Aplico las fórmulas correctamente en problemas de la vida cotidiana.'];
+const NIVELES=['😟 Aún no','🙂 Con ayuda','😃 Lo logro'];
+function vAutoeval(){const a=S.autoevalTmp||{n:[null,null,null,null],c:''};S.autoevalTmp=a;
+ return `<main class="wrap py-6"><div class="bitacora cuadricula p-5 sm:p-7 max-w-2xl mx-auto">
+ <h2 class="text-3xl font-extrabold mb-1">📝 Autoevaluación del superviviente</h2><p class="font-semibold opacity-75 mb-5">Sé honesto: esto ayuda a tu maestra a saber qué repasar.</p>
+ ${AUTO.map((q,i)=>`<div class="mb-4"><div class="font-extrabold mb-2">${i+1}. ${q}</div><div class="escala flex flex-wrap gap-2">${NIVELES.map((n,j)=>`<button class="${a.n[i]===j?'sel':''}" onclick="ISLA.auto(${i},${j})">${n}</button>`).join('')}</div></div>`).join('')}
+ <label class="font-extrabold block mb-2" for="auto-c">¿Qué fue lo más difícil y cómo lo resolviste?</label>
+ <textarea id="auto-c" class="campo" rows="3" maxlength="400" oninput="ISLA.autoC(this.value)">${esc(a.c)}</textarea>
+ <div class="text-right mt-5"><button class="btn btn-prim" onclick="ISLA.enviarAuto()">Enviar y ver mi pasaporte 🛂</button></div></div></main>`;}
+
+function vPasaporte(){const av=AVATARES[S.avatar];const n=S.diag.resp.filter(Boolean).length;const fecha=new Date(S.fin||Date.now()).toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+ return `<main class="wrap py-6"><div id="pasaporte" class="bitacora max-w-3xl mx-auto overflow-hidden" style="border:3px solid #b45309">
+ <div class="p-5 text-white" style="background:linear-gradient(135deg,#7c2d12,#b45309 60%,#d97706)"><div class="flex items-center justify-between gap-3"><div><div class="text-xs font-extrabold uppercase tracking-widest opacity-80">República Geométrica de Isla Polígono</div><h2 class="text-3xl font-extrabold">Pasaporte de Superviviente</h2></div><div class="text-5xl">🛂</div></div></div>
+ <div class="p-5 sm:p-7 relative cuadricula"><div class="sello">${S.final==='legendario'?'LEGENDARIO':'RESCATADO'}</div>
+  <div class="flex flex-wrap gap-5 items-center mb-5"><div class="grid place-items-center rounded-2xl bg-white border-4" style="width:110px;height:110px;border-color:${av.c}">${avatarSVG(S.avatar,80)}</div>
+   <div><div class="text-xs font-bold uppercase opacity-60">Nombre</div><div class="text-2xl font-extrabold">${esc(S.nombre)}</div><div class="text-sm font-bold mt-1">Rol: ${av.n}${S.grupo?' · Grupo: '+esc(S.grupo):''}</div><div class="text-sm font-semibold opacity-70">Rescatado el ${fecha}</div></div></div>
+  <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-5">${[['Puntaje',S.puntaje+' pts'],['Retos','4 / 4'],['Estrellas',S.estrellas+' ⭐'],['Tiempo total',fmtT(S.fin-S.inicio)],['Diagnóstico previo',n+' / 3']].map(x=>`<div class="bg-white rounded-xl p-2 border text-center" style="border-color:#eadcc0"><div class="text-[11px] font-bold uppercase opacity-60">${x[0]}</div><div class="text-lg font-extrabold">${x[1]}</div></div>`).join('')}</div>
+  <div class="font-extrabold mb-2">Sellos de insignia</div><div class="flex flex-wrap justify-around gap-2 mb-5">${DIAS.map((x,i)=>`<div class="text-center" style="width:100px">${insignia(i,true,76)}<div class="text-[11px] font-extrabold leading-tight">${x.insignia}</div></div>`).join('')}</div>
+  <div class="font-extrabold mb-1">Final obtenido: ${S.final==='legendario'?'Rescate Legendario ✨':'Rescate al Límite 🚁'}</div>
+  ${S.autoeval?`<div class="text-sm font-semibold mt-2">${AUTO.map((q,i)=>`<div>• ${q} <b>${NIVELES[S.autoeval.n[i]]||'—'}</b></div>`).join('')}</div>`:''}
+  <div class="flex justify-between mt-8 gap-6 text-xs font-bold opacity-70"><div class="flex-1 border-t-2 pt-1 text-center" style="border-color:#b45309">Firma del superviviente</div><div class="flex-1 border-t-2 pt-1 text-center" style="border-color:#b45309">Firma de la docente</div></div>
+ </div></div>
+ <div class="text-center mt-5 flex flex-wrap justify-center gap-3 no-print"><button class="btn btn-prim" onclick="window.print()">🖨️ Imprimir o guardar en PDF</button><button class="btn btn-sec" onclick="ISLA.irFinal()">← Volver al final</button></div>
+ <div class="text-center mt-6 no-print"><button class="text-sm font-bold underline opacity-60" onclick="ISLA.otroAlumno()" style="background:none;border:0;cursor:pointer;color:inherit">Registrar a otro expedicionario en este dispositivo</button></div></main>`;}
+
+async function energiaGrupo(){const mapa={};const loc=LS.get('isla_alumnos',{});for(const id in loc)mapa[id]=+loc[id].energia||0;
+ if(FB){const j=await fbGet('energia');if(j&&typeof j==='object')for(const id in j)mapa[id]=Math.max(mapa[id]||0,+j[id]||0);}
+ if(S&&S.id)mapa[S.id]=S.puntaje*10;const n=Object.keys(mapa).length;const total=Object.values(mapa).reduce((a,b)=>a+b,0);return {n,total,meta:Math.max(1,n)*90};}
+async function refrescarCoop(){const f=$('#coop-fill');if(!f)return;const e=await energiaGrupo();const pct=Math.min(100,Math.round(e.total/e.meta*100));const f2=$('#coop-fill'),t=$('#coop-txt');if(f2)f2.style.width=pct+'%';if(t)t.textContent=`${pct}% · ${e.total} ⚡ de ${e.meta} · ${e.n} expedicionario${e.n===1?'':'s'}`;}
+
+/* Acciones del alumno */
+const A={
+ elegirAvatar(k){document.querySelectorAll('.avatar-op').forEach(el=>el.classList.toggle('sel',el.dataset.av===k));},
+ registrar(){const n=($('#r-nombre').value||'').trim().replace(/\s+/g,' ');const g=($('#r-grupo').value||'').trim();const av=($('.avatar-op.sel')||{}).dataset;
+  if(n.length<3){toast('✍️ Escribe tu nombre completo');$('#r-nombre').focus();return;}
+  S=nuevoEstado(n,g,av?av.av:'navegante');guardar();renderAlumno();window.scrollTo(0,0);},
+ continuar(){if(S.fase==='registro')S.fase='prologo';renderAlumno();},
+ otroAlumno(){if(!confirm('¿Registrar a otra persona? La expedición guardada en este dispositivo se cerrará (sus resultados ya se enviaron).'))return;LS.del('isla_estado_v1');S=null;renderAlumno();window.scrollTo(0,0);},
+ saltarTipeo(){clearInterval(UI.tipeo);finTipeo();},
+ irDiag(){clearInterval(UI.tipeo);S.fase='diag';guardar();renderAlumno();window.scrollTo(0,0);},
+ diagResp(i){if(S.diag.elegida!=null)return;S.diag.elegida=i;S.diag.resp[S.diag.idx]=(i===DIAG[S.diag.idx].ok);guardar();renderAlumno();},
+ diagSig(){S.diag.idx++;S.diag.elegida=null;guardar();renderAlumno();},
+ iniciarMision(){S.fase='mision';S.dia=0;guardar();renderAlumno();window.scrollTo(0,0);},
+ responder(i){const k=S.dia,d=S.dias[k];if(d.completado||d.esperando||d.descartadas.includes(i))return;const op=retoActual().opciones[i];
+  d.intentos++;
+  if(op.ok){d.completado=true;d.primer=d.intentos===1;if(d.primer){S.racha++;S.estrellas++;}S.maxRacha=Math.max(S.maxRacha,S.racha);d.mult=Math.max(1,Math.min(3,S.racha));d.puntos=d.mult;S.puntaje+=d.puntos;guardar();renderAlumno();setTimeout(()=>{const f=$('#fb');f&&f.scrollIntoView({behavior:'smooth',block:'center'});},60);}
+  else{d.errores.push(op.tag);d.descartadas.push(i);d.ultimo=i;d.esperando=true;if(S.escudoActivo){S.escudoActivo=false;d.absorbido=true;}else{S.racha=0;d.absorbido=false;}guardar();renderAlumno();setTimeout(()=>{const f=$('#fb');f&&f.scrollIntoView({behavior:'smooth',block:'center'});},60);}},
+ reintentar(){const d=S.dias[S.dia];d.esperando=false;d.absorbido=false;guardar();renderAlumno();},
+ lupa(){if(S.lupaUsada)return;S.lupaUsada=true;S.lupaDia=S.dia;guardar();renderAlumno();toast('🔍 Datos clave resaltados');},
+ escudo(){if(S.escudoUsado)return;S.escudoUsado=true;S.escudoActivo=true;guardar();renderAlumno();toast('🛡️ Escudo Protector activado');},
+ cajon(v){UI.cajon=v;const c=$('#cajon');if(c)c.classList.toggle('abierto',v);},
+ continuarDia(){S.modal={dia:S.dia};guardar();renderAlumno();},
+ cerrarModal(){const k=S.modal.dia;S.modal=null;S.dia=k+1;
+  if(S.dia>=4){S.fin=Date.now();S.final=S.dias.every(d=>d.errores.length===0)?'legendario':'limite';S.fase='final';guardar();renderAlumno();window.scrollTo(0,0);return;}
+  S.animar=k;guardar();renderAlumno();window.scrollTo({top:0,behavior:'smooth'});},
+ irAutoeval(){S.fase='autoeval';guardar();renderAlumno();window.scrollTo(0,0);},
+ auto(i,j){S.autoevalTmp.n[i]=j;document.querySelectorAll('.escala')[i].querySelectorAll('button').forEach((b,x)=>b.classList.toggle('sel',x===j));},
+ autoC(v){S.autoevalTmp.c=v;},
+ enviarAuto(){const a=S.autoevalTmp;if(a.n.some(x=>x==null)){toast('Responde los 4 enunciados 🙂');return;}S.autoeval={n:a.n.slice(),c:a.c.trim()};S.fase='pasaporte';guardar();renderAlumno();window.scrollTo(0,0);toast('📨 Autoevaluación enviada');},
+ irFinal(){S.fase='final';guardar();renderAlumno();}
+};
+
+/* ====================== VISTA DEL DOCENTE ====================== */
+let DOC={tab:'ranking',fb:{},cot:LS.get('isla_cotejo',{}),estadoFb:'',proy:false};
+const CRIT=['Identifica figuras y cuerpos','Usa correctamente las fórmulas','Procedimiento correcto','Resultado correcto'];
+function alumnosTodos(){const loc=LS.get('isla_alumnos',{});const m=Object.assign({},loc);for(const id in DOC.fb){const r=DOC.fb[id];if(r&&(!m[id]||(r.actualizado||0)>(m[id].actualizado||0)))m[id]=r;}
+ const L=Object.values(m).filter(r=>r&&r.id).map(r=>{r.dias=r.dias||[];r.erroresDetalle=r.erroresDetalle||[];if(r.estado!=='finalizado')r.tiempo=Math.max(r.tiempo||0,(r.actualizado||Date.now())-(r.inicio||Date.now()));return r;});
+ L.sort((a,b)=>(b.puntaje-a.puntaje)||((b.estado==='finalizado')-(a.estado==='finalizado'))||((a.tiempo||0)-(b.tiempo||0)));return L;}
+function medalla(i){return ['🥇','🥈','🥉'][i]||(i+1)+'.';}
+function progresoDias(r){return [0,1,2,3].map(i=>{const d=r.dias[i];if(d&&d.c)return `<span class="punto ${d.primer?'p-star':'p-ok'}" title="Día ${i+1}: ${d.intentos} intento(s)">${d.primer?'★':'✓'}</span>`;if(r.estado!=='finalizado'&&r.fase==='mision'&&(r.diaActual===i))return `<span class="punto p-act" title="Día ${i+1} en curso">${i+1}</span>`;return `<span class="punto p-no">${i+1}</span>`;}).join('');}
+function cotejoDe(id){return DOC.cot[id]||[false,false,false,false];}
+function calif(id){return cotejoDe(id).filter(Boolean).length*2.5;}
+
+function renderDocente(){document.body.className='atm-3';const L=alumnosTodos();
+ const totE=L.reduce((a,r)=>a+(+r.energia||0),0),meta=Math.max(1,L.length)*90,pct=Math.min(100,Math.round(totE/meta*100));
+ const fin=L.filter(r=>r.estado==='finalizado').length;
+ $('#app').innerHTML=`<header class="cielo"><div class="deco deco-noche"><div class="bengala"></div></div><div class="wrap relative py-5">
+  <div class="flex flex-wrap items-center justify-between gap-3"><div><div class="text-xs font-extrabold uppercase tracking-widest opacity-80">Panel docente</div><h1 class="text-3xl font-extrabold">🗼 Isla Polígono · Centro de Mando</h1></div>
+  <div class="flex flex-wrap gap-2"><span class="chip">👥 ${L.length} alumnos</span><span class="chip">🏁 ${fin} finalizados</span><span class="chip" title="Estado de conexión">${FB?(DOC.estadoFb||'☁️ Firebase…'):'💾 Solo este dispositivo'}</span><button class="btn btn-prim btn-mini" onclick="ISLA.proyectar(true)">📽️ Modo Proyección</button></div></div>
+  <div class="mt-4"><div class="flex justify-between text-xs font-extrabold mb-1"><span>📡 Señal de Rescate Cooperativa del grupo</span><span>${pct}% · ${totE} ⚡ de ${meta}</span></div><div class="barra"><i style="width:${pct}%"></i></div></div></div></header>
+ <main class="wrap py-5"><div class="flex flex-wrap gap-1">${[['ranking','🏆 Rankings'],['cotejo','✅ Lista de cotejo'],['auto','📝 Autoevaluaciones'],['config','⚙️ Conexión y exportación']].map(t=>`<button class="pestana ${DOC.tab===t[0]?'act':''}" onclick="ISLA.tab('${t[0]}')">${t[1]}</button>`).join('')}</div>
+ <div class="bitacora p-4 sm:p-5" style="border-top-left-radius:0">${DOC.tab==='ranking'?vRanking(L):DOC.tab==='cotejo'?vCotejo(L):DOC.tab==='auto'?vAutoDoc(L):vConfig()}</div></main>
+ ${DOC.proy?vProyeccion(L,pct,totE,meta):''}`;}
+function vacio(){return `<div class="text-center py-10 font-bold opacity-60">Aún no hay expedicionarios registrados.<br><span class="text-sm">Comparte el archivo o enlace del alumno (pestaña «Conexión y exportación»).</span></div>`;}
+function vRanking(L){if(!L.length)return vacio();return `<div class="overflow-x-auto"><table class="tabla"><thead><tr><th>Lugar</th><th>Expedicionario</th><th>Diagnóstico</th><th>Progreso por día</th><th>Puntaje</th><th>⭐</th><th>⚡ Energía</th><th>Errores</th><th>Tiempo</th><th>Estado</th></tr></thead><tbody>
+ ${L.map((r,i)=>`<tr><td class="text-xl font-extrabold text-center">${medalla(i)}</td><td><div class="flex items-center gap-2">${avatarSVG(r.avatar,28)}<div><div class="font-extrabold">${esc(r.nombre)}</div><div class="text-xs opacity-60 font-semibold">${esc(r.grupo)} ${(AVATARES[r.avatar]||{}).n||''}</div></div></div></td><td class="font-bold">${r.diagResp>=3?r.diag+'/3':'<span class="opacity-50">en curso</span>'}</td><td style="white-space:nowrap">${progresoDias(r)}</td><td class="text-xl font-extrabold">${r.puntaje||0}</td><td class="font-bold">${r.estrellas||0}</td><td class="font-bold">${r.energia||0}</td><td class="font-bold">${r.errores||0}</td><td class="font-mono font-bold">${fmtT(r.tiempo)}</td><td>${r.estado==='finalizado'?`<span class="punto p-ok" style="width:auto;padding:0 .5rem">${r.final==='legendario'?'✨ Legendario':'🚁 Rescatado'}</span>`:'<span class="punto p-act" style="width:auto;padding:0 .5rem">en curso</span>'}</td></tr>`).join('')}
+ </tbody></table></div><div class="text-xs font-semibold opacity-60 mt-2">Orden: puntaje (con multiplicador de racha) → finalizados primero → menor tiempo. ★ = día resuelto al primer intento · ✓ = resuelto con errores. Se actualiza automáticamente.</div>`;}
+function vCotejo(L){if(!L.length)return vacio();return `<div class="flex flex-wrap justify-between items-center gap-2 mb-3"><p class="text-sm font-semibold opacity-75 m-0">Marca los criterios observados. Cada criterio vale 2.5 puntos (escala de 10). «Sugerir» propone una marca a partir del desempeño registrado; puedes ajustarla.</p><button class="btn btn-sec btn-mini" onclick="ISLA.sugerirTodos()">✨ Sugerir para todos los finalizados</button></div>
+ <div class="overflow-x-auto"><table class="tabla"><thead><tr><th>Alumno</th>${CRIT.map((c,i)=>`<th>C${i+1}. ${c}</th>`).join('')}<th>Calificación</th><th>Errores detectados</th><th></th></tr></thead><tbody>
+ ${L.map(r=>{const c=cotejoDe(r.id);return `<tr><td><div class="font-extrabold">${esc(r.nombre)}</div><div class="text-xs opacity-60">${esc(r.grupo)} · ${r.retos||0}/4 retos</div></td>${c.map((v,i)=>`<td class="text-center"><input type="checkbox" style="width:22px;height:22px;accent-color:#db2777" ${v?'checked':''} onchange="ISLA.marcar('${esc(r.id)}',${i},this.checked)"></td>`).join('')}<td class="text-xl font-extrabold text-center">${calif(r.id)}</td><td class="text-xs font-semibold" style="max-width:260px">${r.erroresDetalle.length?r.erroresDetalle.map(esc).join('<br>'):'<span class="opacity-50">Sin errores</span>'}</td><td><button class="btn btn-sec btn-mini" onclick="ISLA.sugerir('${esc(r.id)}')">Sugerir</button></td></tr>`;}).join('')}
+ </tbody></table></div>`;}
+function vAutoDoc(L){const A2=L.filter(r=>r.autoeval&&r.autoeval.n);if(!A2.length)return `<div class="text-center py-10 font-bold opacity-60">Todavía no se reciben autoevaluaciones.</div>`;
+ const prom=AUTO.map((q,i)=>{const v=A2.map(r=>r.autoeval.n[i]).filter(x=>x!=null);return v.length?v.reduce((a,b)=>a+b,0)/v.length:0;});
+ return `<div class="grid sm:grid-cols-4 gap-3 mb-5">${AUTO.map((q,i)=>`<div class="bg-white rounded-2xl p-3 border" style="border-color:#eadcc0"><div class="text-xs font-bold opacity-70">${q}</div><div class="barra mt-2" style="background:#f1ece2"><i style="width:${Math.round(prom[i]/2*100)}%"></i></div><div class="text-xs font-extrabold mt-1">Promedio: ${(prom[i]/2*100).toFixed(0)}% de dominio percibido</div></div>`).join('')}</div>
+ <div class="grid md:grid-cols-2 gap-3">${A2.map(r=>`<div class="bg-white rounded-2xl p-4 border" style="border-color:#eadcc0"><div class="flex items-center gap-2 mb-2">${avatarSVG(r.avatar,26)}<b>${esc(r.nombre)}</b><span class="text-xs opacity-60">${esc(r.grupo)}</span></div>${AUTO.map((q,i)=>`<div class="text-sm flex justify-between gap-2 border-b border-dashed py-1" style="border-color:#eadcc0"><span>${q}</span><b style="white-space:nowrap">${NIVELES[r.autoeval.n[i]]||'—'}</b></div>`).join('')}${r.autoeval.c?`<div class="text-sm mt-2 p-2 rounded-xl" style="background:#fdf6e9">💬 ${esc(r.autoeval.c)}</div>`:''}</div>`).join('')}</div>`;}
+function linkAlumno(){const base=location.href.split('?')[0].split('#')[0];return FB?base+'?fb='+encodeURIComponent(FB):base;}
+function vConfig(){return `<div class="grid md:grid-cols-2 gap-5">
+ <div><h3 class="text-xl font-extrabold mb-2">☁️ Conexión en la nube (Firebase)</h3>
+  <p class="text-sm font-semibold opacity-75 mb-2">Sin Firebase, los resultados solo se ven en este mismo navegador. Para recibirlos a distancia, pega la URL de tu <b>Firebase Realtime Database</b>.</p>
+  <input id="fb-url" class="campo mb-2" placeholder="https://tu-proyecto-default-rtdb.firebaseio.com" value="${esc(FB)}">
+  <div class="flex flex-wrap gap-2 mb-3"><button class="btn btn-prim btn-mini" onclick="ISLA.guardarFb()">Guardar y probar conexión</button>${FB?'<button class="btn btn-sec btn-mini" onclick="ISLA.quitarFb()">Desconectar</button>':''}</div>
+  <div class="text-sm font-bold mb-3">${FB?(DOC.estadoFb||'Probando…'):'Sin conexión configurada.'}</div>
+  <div class="font-extrabold text-sm mb-1">🔗 Enlace directo para los alumnos</div>
+  <div class="flex gap-2"><input class="campo text-sm" readonly value="${esc(linkAlumno())}" id="link-al"><button class="btn btn-sec btn-mini" onclick="ISLA.copiar()">Copiar</button></div>
+  <p class="text-xs font-semibold opacity-70 mt-1">El enlace funciona cuando el archivo está publicado en internet (GitHub Pages, Netlify Drop, Google Sites…). Si lo compartes como archivo, usa la descarga de la derecha: ya incluye la conexión.</p>
+  <details class="mt-3 text-sm"><summary class="font-extrabold cursor-pointer">¿Cómo crear la base de datos? (5 min)</summary><ol class="list-decimal pl-5 mt-2 font-semibold opacity-85 grid gap-1"><li>Entra a console.firebase.google.com y crea un proyecto gratuito.</li><li>Menú <i>Compilación → Realtime Database → Crear base de datos</i>.</li><li>En <i>Reglas</i>, pega y publica:<pre class="bg-white p-2 rounded-lg text-xs mt-1 overflow-x-auto">{ "rules": { "isla_poligono": { ".read": true, ".write": true } } }</pre></li><li>Copia la URL que aparece arriba de los datos y pégala aquí.</li></ol><p class="mt-2 text-xs opacity-70">Estas reglas son abiertas: úsalas solo durante la actividad y bórralas al terminar.</p></details>
+ </div>
+ <div><h3 class="text-xl font-extrabold mb-2">📦 Archivos separados</h3>
+  <p class="text-sm font-semibold opacity-75 mb-3">Descarga dos aplicaciones independientes. La del alumno no contiene ningún acceso visible al panel ni a los rankings.</p>
+  <div class="grid gap-2 mb-5"><button class="btn btn-prim justify-start" onclick="ISLA.bajar('alumno')">🧭 alumno_isla_poligono.html</button><button class="btn btn-sec justify-start" onclick="ISLA.bajar('docente')">🗼 docente_rankings.html</button></div>
+  <h3 class="text-xl font-extrabold mb-2">📊 Exportar resultados</h3>
+  <div class="grid gap-2 mb-5"><button class="btn btn-sec justify-start" onclick="ISLA.exportar('csv')">📄 Descargar CSV</button><button class="btn btn-sec justify-start" onclick="ISLA.exportar('xls')">📗 Descargar Excel (.xls)</button></div>
+  <h3 class="text-xl font-extrabold mb-2">🧹 Reiniciar actividad</h3>
+  <div class="flex flex-wrap gap-2"><button class="btn btn-sec btn-mini" onclick="ISLA.borrarLocal()">Borrar datos de este dispositivo</button>${FB?'<button class="btn btn-sec btn-mini" style="color:#b91c1c" onclick="ISLA.borrarFb()">Borrar datos en Firebase</button>':''}</div>
+ </div></div>`;}
+function vProyeccion(L,pct,totE,meta){return `<div class="proyeccion"><div class="max-w-6xl mx-auto"><div class="flex flex-wrap justify-between items-center gap-3 mb-5"><h1 class="text-4xl sm:text-5xl font-extrabold">🏆 Pizarrón de Supervivientes</h1><button class="btn btn-sec" onclick="ISLA.proyectar(false)">Salir ✕</button></div>
+ <div class="mb-6"><div class="flex justify-between text-lg font-extrabold mb-2"><span>📡 Señal de Rescate Cooperativa</span><span>${pct}%</span></div><div class="barra" style="height:26px"><i style="width:${pct}%"></i></div></div>
+ <table class="tabla"><thead><tr><th>Lugar</th><th>Expedicionario</th><th>Progreso</th><th>Puntaje</th><th>⭐</th><th>Tiempo</th></tr></thead><tbody>${L.slice(0,30).map((r,i)=>`<tr style="${i<3?'font-size:1.15em':''}"><td class="text-3xl text-center">${medalla(i)}</td><td class="font-extrabold">${esc(r.nombre)} ${r.estado==='finalizado'?'🚁':''}</td><td style="white-space:nowrap">${progresoDias(r)}</td><td class="text-3xl font-extrabold">${r.puntaje||0}</td><td>${r.estrellas||0}</td><td class="font-mono">${fmtT(r.tiempo)}</td></tr>`).join('')||'<tr><td colspan="6" class="text-center">Esperando expedicionarios…</td></tr>'}</tbody></table></div></div>`;}
+
+function filas(){const L=alumnosTodos();const cab=['Lugar','Nombre','Grado/Grupo','Rol','Diagnóstico previo (/3)','Día 1','Día 2','Día 3','Día 4','Retos (/4)','Puntaje','Estrellas','Energía','Errores','Errores detectados','Tiempo','Estado','Final'].concat(CRIT.map((c,i)=>'C'+(i+1)+' '+c),['Calificación lista de cotejo (/10)'],AUTO.map((a,i)=>'Autoevaluación '+(i+1)),['Comentario del alumno']);
+ const rows=L.map((r,i)=>{const c=cotejoDe(r.id);return [i+1,r.nombre,r.grupo,(AVATARES[r.avatar]||{}).n||'',r.diagResp>=3?r.diag:'',...[0,1,2,3].map(k=>{const d=r.dias[k];return d&&d.c?(d.primer?'Correcto al 1er intento':'Correcto en '+d.intentos+' intentos')+' (variante '+d.variante+')':'Pendiente';}),r.retos||0,r.puntaje||0,r.estrellas||0,r.energia||0,r.errores||0,r.erroresDetalle.join(' | '),fmtT(r.tiempo),r.estado,r.final==='legendario'?'Rescate Legendario':r.final==='limite'?'Rescate al Límite':'',...c.map(v=>v?'Sí':'No'),calif(r.id),...AUTO.map((a,k)=>r.autoeval&&r.autoeval.n?(NIVELES[r.autoeval.n[k]]||'').replace(/^\S+\s/,''):''),r.autoeval?r.autoeval.c:''];});return [cab].concat(rows);}
+async function cargarFb(){if(!FB){DOC.estadoFb='';return;}const a=await fbGet('alumnos');if(a===undefined){DOC.estadoFb='⚠️ Sin conexión con Firebase';return;}DOC.fb=a||{};DOC.estadoFb='☁️ Firebase en vivo';}
+async function cargarCotejoFb(){if(!FB)return;const c=await fbGet('cotejo');if(c&&typeof c==='object'){for(const id in c)if(Array.isArray(c[id]))DOC.cot[id]=c[id];LS.set('isla_cotejo',DOC.cot);}}
+function refrescarDoc(){const a=document.activeElement;if(a&&(a.id==='fb-url'))return;renderDocente();}
+const D={
+ tab(t){DOC.tab=t;renderDocente();},
+ proyectar(v){DOC.proy=v;renderDocente();try{if(v&&document.documentElement.requestFullscreen)document.documentElement.requestFullscreen();else if(!v&&document.fullscreenElement)document.exitFullscreen();}catch(e){}},
+ marcar(id,i,v){const c=cotejoDe(id).slice();c[i]=v;DOC.cot[id]=c;LS.set('isla_cotejo',DOC.cot);fbPut('cotejo/'+id,c);renderDocente();},
+ sugerir(id,silencio){const r=alumnosTodos().find(x=>x.id===id);if(!r)return;const d=r.dias;const e=k=>d[k]?d[k].errores:0;const c=[!!(d[0]&&d[0].c&&e(0)===0),[1,2,3].every(k=>d[k]&&d[k].c)&&(e(1)+e(2)+e(3))<=1,[1,2,3].every(k=>d[k]&&d[k].c)&&(e(1)+e(2)+e(3))<=3,(r.retos||0)===4&&d.filter(x=>x&&x.primer).length>=3];DOC.cot[id]=c;LS.set('isla_cotejo',DOC.cot);fbPut('cotejo/'+id,c);if(!silencio)renderDocente();},
+ sugerirTodos(){alumnosTodos().filter(r=>r.estado==='finalizado').forEach(r=>D.sugerir(r.id,true));renderDocente();toast('✨ Sugerencias aplicadas');},
+ async guardarFb(){FB=normFb($('#fb-url').value);LS.set('isla_fb',FB);DOC.estadoFb='Probando…';renderDocente();if(!FB)return;const t=await fbGet('');DOC.estadoFb=t===undefined?'⚠️ No se pudo conectar: revisa la URL y las reglas':'✅ Conectado a Firebase';await cargarFb();await cargarCotejoFb();if(t!==undefined)DOC.estadoFb='✅ Conectado a Firebase';renderDocente();},
+ quitarFb(){FB='';LS.set('isla_fb','');DOC.fb={};DOC.estadoFb='';renderDocente();},
+ copiar(){const v=$('#link-al').value;(navigator.clipboard?navigator.clipboard.writeText(v):Promise.reject()).then(()=>toast('🔗 Enlace copiado'),()=>{$('#link-al').select();document.execCommand('copy');toast('🔗 Enlace copiado');});},
+ bajar(modo){const doc=new DOMParser().parseFromString(SNAP,'text/html');doc.querySelectorAll('style:not(#estilos)').forEach(s=>s.remove());doc.getElementById('cfg').textContent='window.ISLA_CONFIG='+JSON.stringify({modo,fb:FB})+';';doc.getElementById('app').innerHTML='';doc.body.className='atm-0';
+  descargar(modo==='alumno'?'alumno_isla_poligono.html':'docente_rankings.html','<!DOCTYPE html>\n'+doc.documentElement.outerHTML);toast(FB?'📦 Descargado (con conexión a Firebase)':'📦 Descargado (sin Firebase: solo datos locales)');},
+ exportar(t){const F=filas();const fecha=new Date().toISOString().slice(0,10);
+  if(t==='csv'){const csv='\uFEFF'+F.map(r=>r.map(v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"').join(',')).join('\r\n');descargar('isla_poligono_resultados_'+fecha+'.csv',csv,'text/csv;charset=utf-8');}
+  else{const h='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><table border="1">'+F.map((r,i)=>'<tr>'+r.map(v=>(i?'<td>':'<th style="background:#fde68a">')+esc(v)+(i?'</td>':'</th>')).join('')+'</tr>').join('')+'</table></body></html>';descargar('isla_poligono_resultados_'+fecha+'.xls',h,'application/vnd.ms-excel');}},
+ borrarLocal(){if(!confirm('¿Borrar todos los resultados guardados en ESTE dispositivo? No afecta a Firebase.'))return;LS.del('isla_alumnos');LS.del('isla_cotejo');DOC.cot={};renderDocente();},
+ async borrarFb(){if(!confirm('¿Borrar TODOS los resultados de la actividad en Firebase? Esta acción no se puede deshacer.'))return;try{await fetch(FB+'/isla_poligono.json',{method:'DELETE'});DOC.fb={};toast('🧹 Datos de Firebase borrados');}catch(e){toast('No se pudo borrar');}renderDocente();}
+};
+
+/* ====================== ARRANQUE ====================== */
+window.ISLA=Object.assign({},MODO==='docente'?D:A);
+if(MODO==='docente'){
+ renderDocente();
+ if(bc)bc.onmessage=()=>refrescarDoc();
+ window.addEventListener('storage',e=>{if(e.key==='isla_alumnos'||e.key==='isla_cotejo'){DOC.cot=LS.get('isla_cotejo',{});refrescarDoc();}});
+ (async()=>{await cargarFb();await cargarCotejoFb();refrescarDoc();})();
+ setInterval(async()=>{if(FB){await cargarFb();}refrescarDoc();},4000);
+}else{
+ if(S&&S.fase==='mision'&&S.modal&&S.dia>3)S.modal=null;
+ if(S&&!S.fase)S.fase='prologo';
+ renderAlumno();
+ setInterval(()=>{const c=$('#crono');if(c&&S)c.textContent=fmtT((S.fin||Date.now())-S.inicio);},1000);
+ setInterval(()=>{if(S&&['mision','final'].includes(S.fase))refrescarCoop();},8000);
+ if(bc)bc.onmessage=()=>{if(S&&['mision','final'].includes(S.fase))refrescarCoop();};
+ document.addEventListener('keydown',e=>{if(e.key==='Escape')A.cajon(false);});
+}
+})();
+</script>
+</body>
+</html>
